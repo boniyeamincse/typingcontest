@@ -4,6 +4,9 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
+import ContestsPage from './pages/ContestsPage'
+import ContestDetailPage from './pages/ContestDetailPage'
+import TypingArenaPage from './pages/TypingArenaPage'
 import './App.css'
 
 function App() {
@@ -18,6 +21,16 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/contests" element={<ContestsPage />} />
+        <Route path="/contests/:id" element={<ContestDetailPage />} />
+        <Route
+          path="/contests/:id/play"
+          element={
+            <ProtectedRoute>
+              <TypingArenaPage />
             </ProtectedRoute>
           }
         />

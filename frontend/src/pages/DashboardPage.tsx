@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 
 export function DashboardPage() {
@@ -38,9 +38,14 @@ export function DashboardPage() {
           </article>
         </div>
 
-        <button className="logout-btn" onClick={onLogout} disabled={loading}>
-          {loading ? 'Signing out...' : 'Logout'}
-        </button>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
+          <Link to="/contests" className="logout-btn" style={{ textDecoration: 'none', textAlign: 'center' }}>
+            Browse Contests
+          </Link>
+          <button className="logout-btn" onClick={onLogout} disabled={loading}>
+            {loading ? 'Signing out...' : 'Logout'}
+          </button>
+        </div>
       </section>
     </main>
   )

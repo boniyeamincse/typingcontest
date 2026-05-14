@@ -1,0 +1,128 @@
+.contest-detail {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.detail-badges { display: flex; gap: 0.5rem; }
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+}
+
+.badge--active    { background: #d1fae5; color: #065f46; }
+.badge--published { background: #dbeafe; color: #1e40af; }
+.badge--completed { background: #f1f5f9; color: #475569; }
+.badge--draft     { background: #fef3c7; color: #92400e; }
+.badge--type      { background: #ede9fe; color: #4c1d95; }
+
+.back-link {
+  color: var(--color-primary, #3b82f6);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.detail-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+}
+
+.detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  font-size: 0.88rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+.detail-text-preview {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.detail-text-preview h2 { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin: 0 0 0.75rem; }
+
+.detail-text-preview blockquote {
+  margin: 0;
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: #1e293b;
+}
+
+.play-btn {
+  display: inline-block;
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.8rem 2.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-bottom: 2rem;
+}
+
+.play-btn:hover { background: #2563eb; }
+.play-btn:disabled { opacity: 0.55; cursor: default; }
+
+.detail-upcoming {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+.leaderboard-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.leaderboard-table th {
+  color: #94a3b8;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.leaderboard-table tr:hover td { background: #f8fafc; }
+
+.loading-msg, .empty-msg { color: #64748b; text-align: center; margin-top: 3rem; }
+
+@media (max-width: 480px) {
+  .detail-title { font-size: 1.5rem; }
+  .leaderboard-table { font-size: 0.8rem; }
+}
