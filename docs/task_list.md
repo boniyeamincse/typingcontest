@@ -7,16 +7,16 @@
 ## PHASE 1 — Project Setup & Infrastructure
 
 ### 1.1 Laravel Backend Bootstrap
-- [ ] 001 · Init Laravel 12 project, configure `.env` (DB, Redis, Mail, Queue)
-- [ ] 002 · Install packages: `laravel/sanctum`, `tymon/jwt-auth`, `laravel/horizon`, `laravel/telescope`, `spatie/laravel-permission`
-- [ ] 003 · Configure JWT auth guards and middleware
-- [ ] 004 · Configure Redis for cache, sessions, and queues
-- [ ] 005 · Set up Laravel Horizon for queue monitoring
-- [ ] 006 · Set up Laravel Telescope for local debugging
-- [ ] 007 · Configure CORS for React frontend origin
-- [ ] 008 · Set up API versioning prefix `/api/v1`
-- [ ] 009 · Set up Pusher / Laravel Echo Server for WebSocket broadcasting
-- [ ] 010 · Configure `.env` broadcast driver (Pusher or Soketi self-hosted)
+- [x] 001 · Init Laravel 12 project, configure `.env` (DB, Redis, Mail, Queue)
+- [x] 002 · Install packages: `laravel/sanctum`, `tymon/jwt-auth`, `laravel/horizon`, `laravel/telescope`, `spatie/laravel-permission`
+- [x] 003 · Configure JWT auth guards and middleware
+- [x] 004 · Configure Redis for cache, sessions, and queues
+- [x] 005 · Set up Laravel Horizon for queue monitoring
+- [x] 006 · Set up Laravel Telescope for local debugging
+- [x] 007 · Configure CORS for React frontend origin
+- [x] 008 · Set up API versioning prefix `/api/v1`
+- [x] 009 · Set up Pusher / Laravel Echo Server for WebSocket broadcasting
+- [x] 010 · Configure `.env` broadcast driver (Pusher or Soketi self-hosted)
 
 ### 1.2 React + TypeScript Frontend Bootstrap
 - [ ] 011 · Init Vite + React 19 + TypeScript project
