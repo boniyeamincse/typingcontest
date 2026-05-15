@@ -3,8 +3,10 @@
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
 use App\Http\Controllers\API\Leaderboard\LeaderboardController;
+use App\Http\Controllers\API\Payment\AdminPaymentController;
 use App\Http\Controllers\API\Payment\PaymentController;
 use App\Http\Controllers\API\Profile\ProfileController;
+use App\Http\Controllers\API\Subscription\AdminSubscriptionController;
 use App\Http\Controllers\API\Subscription\FeatureAccessController;
 use App\Http\Controllers\API\Subscription\SubscriptionController;
 use App\Http\Controllers\API\Typing\TypingController;
@@ -117,6 +119,18 @@ Route::prefix('v1')->group(function () {
             Route::post('/admin/contests/{contest}/pause', [ContestController::class, 'pause']);
             Route::post('/admin/contests/{contest}/resume', [ContestController::class, 'resume']);
             Route::post('/admin/contests/{contest}/cancel', [ContestController::class, 'cancel']);
+
+            // Admin coupon management
+            Route::get('/admin/coupons', [AdminSubscriptionController::class, 'coupons']);
+            Route::post('/admin/coupons', [AdminSubscriptionController::class, 'createCoupon'])->middleware('throttle:30,1');
+            Route::put('/admin/coupons/{coupon}', [AdminSubscriptionController::class, 'updateCoupon'])->middleware('throttle:30,1');
+            Route::post('/admin/coupons/{coupon}/toggle', [AdminSubscriptionController::class, 'toggleCoupon'])->middleware('throttle:30,1');
+
+            // Admin subscription override
+            Route::post('/admin/subscriptions/override', [AdminSubscriptionController::class, 'override'])->middleware('throttle:20,1');
+
+            // Admin refund handling
+            Route::post('/admin/payments/{paymentIntentId}/refund', [AdminPaymentController::class, 'refund'])->middleware('throttle:20,1');
         });
     });
 
