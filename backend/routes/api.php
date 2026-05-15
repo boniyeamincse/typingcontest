@@ -4,6 +4,7 @@ use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
 use App\Http\Controllers\API\Contest\LeaderboardController;
 use App\Http\Controllers\API\Profile\ProfileController;
+use App\Http\Controllers\API\Typing\TypingController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -57,6 +58,17 @@ Route::prefix('v1')->group(function () {
         Route::get('/contests/{contest}/typing-text', [ContestController::class, 'getTypingText']);
         Route::post('/contests/{contest}/submit', [ContestController::class, 'submit']);
         Route::get('/contests/{contest}/result', [ContestController::class, 'getUserResult']);
+
+        // Typing engine
+        Route::prefix('typing')->group(function () {
+            Route::post('/start', [TypingController::class, 'start'])->middleware('throttle:30,1');
+            Route::post('/update', [TypingController::class, 'update'])->middleware('throttle:180,1');
+            Route::post('/submit', [TypingController::class, 'submit'])->middleware('throttle:30,1');
+            Route::get('/session/{id}', [TypingController::class, 'show']);
+            Route::get('/status/{session_id}', [TypingController::class, 'status']);
+            Route::get('/result/{id}', [TypingController::class, 'result']);
+            Route::get('/history', [TypingController::class, 'history']);
+        });
 
         // Admin contest management
         Route::middleware('role:admin')->group(function () {

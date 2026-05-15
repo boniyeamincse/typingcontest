@@ -18,6 +18,12 @@ use App\Repositories\Profile\EloquentProfileRepository;
 use App\Repositories\Profile\EloquentStatisticRepository;
 use App\Repositories\Profile\ProfileRepositoryInterface;
 use App\Repositories\Profile\StatisticRepositoryInterface;
+use App\Repositories\Typing\EloquentTypingInputRepository;
+use App\Repositories\Typing\EloquentTypingResultRepository;
+use App\Repositories\Typing\EloquentTypingSessionRepository;
+use App\Repositories\Typing\TypingInputRepositoryInterface;
+use App\Repositories\Typing\TypingResultRepositoryInterface;
+use App\Repositories\Typing\TypingSessionRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
@@ -42,6 +48,11 @@ class AppServiceProvider extends ServiceProvider
         // Contest module
         $this->app->bind(ContestRepositoryInterface::class, EloquentContestRepository::class);
         $this->app->bind(ParticipantRepositoryInterface::class, EloquentParticipantRepository::class);
+
+        // Typing module
+        $this->app->bind(TypingSessionRepositoryInterface::class, EloquentTypingSessionRepository::class);
+        $this->app->bind(TypingInputRepositoryInterface::class, EloquentTypingInputRepository::class);
+        $this->app->bind(TypingResultRepositoryInterface::class, EloquentTypingResultRepository::class);
     }
 
     /**
