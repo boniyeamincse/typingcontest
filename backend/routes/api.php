@@ -130,6 +130,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/admin/subscriptions/override', [AdminSubscriptionController::class, 'override'])->middleware('throttle:20,1');
 
             // Admin refund handling
+            Route::get('/admin/reports/subscriptions-payments', [AdminPaymentController::class, 'report']);
             Route::post('/admin/payments/{paymentIntentId}/refund', [AdminPaymentController::class, 'refund'])->middleware('throttle:20,1');
         });
     });

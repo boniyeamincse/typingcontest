@@ -11,6 +11,30 @@ class AdminPaymentController extends Controller
 {
     public function __construct(private readonly PaymentAdminService $paymentAdminService) {}
 
+    public function report(Request $request): JsonResponse
+    {
+        $filters = $request->validate([
+            'from_date' => ['nullable', 'date'],
+            'to_date' => ['nullable', 'date', 'after_or_equal:from_date'],
+            'gateway' => ['nullable', 'in:bkash,nagad,sslcommerz'],
+            'payment_status' => ['nullable', 'in:pending,processing,paid,failed,refunded'],
+            'subscription_status' => ['nullable', 'in:pending,active,cancelled,expired,grace'],
+            'coupon_code' => ['nullable', 'string', 'max:64'],
+            'refund_reason' => ['nullable', 'string', 'max:255'],
+            'plan_code' => ['nullable', 'string', 'max:32'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:200'],
+        ]);
+
+        $data = $this->paymentAdminService->report($filters);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Admin report fetched successfully',
+            'data' => $data,
+        ]);
+    }
+
     public function refund(Request $request, string $paymentIntentId): JsonResponse
     {
         $payload = $request->validate([

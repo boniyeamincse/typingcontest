@@ -140,4 +140,66 @@ class AdminSubscriptionPaymentApiTest extends TestCase
             ])
             ->assertStatus(403);
     }
+
+    public function test_admin_can_get_subscription_payment_report_with_filters(): void
+    {
+        $admin = $this->adminUser();
+
+        $coupon = CouponCode::query()->create([
+            'code' => 'REPORT10',
+            'discount_type' => 'fixed',
+            'discount_value' => 10,
+            'per_user_limit' => 1,
+            'is_active' => true,
+        ]);
+
+        $paidHeaders = $this->authHeader($admin);
+
+        $subscribe = $this->withHeaders($paidHeaders)->postJson('/api/v1/subscription/subscribe', [
+            'plan_code' => 'pro_monthly',
+            'gateway' => 'bkash',
+            'coupon_code' => 'REPORT10',
+        ]);
+
+        $intent = (string) $subscribe->json('data.payment.payment_intent_id');
+
+        $this->withHeaders($paidHeaders)->postJson('/api/v1/payment/verify', [
+            'payment_intent_id' => $intent,
+            'status' => 'success',
+            'amount' => 189,
+            'gateway_reference' => 'BKASH-REPORT-REF',
+            'external_transaction_id' => 'BKASH-REPORT-TXN',
+        ])->assertOk();
+
+        Role::findOrCreate('admin', 'api');
+        $admin->syncRoles(['admin']);
+
+        $this->withHeaders($this->authHeader($admin->fresh()))
+            ->getJson('/api/v1/admin/reports/subscriptions-payments?gateway=bkash&payment_status=paid&coupon_code=REPORT10&limit=10')
+            ->assertOk()
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.filters.gateway', 'bkash')
+            ->assertJsonPath('data.filters.payment_status', 'paid')
+            ->assertJsonPath('data.filters.coupon_code', 'REPORT10')
+            ->assertJsonPath('data.summary.total_transactions', 1)
+            ->assertJsonPath('data.summary.paid_amount', 189)
+            ->assertJsonPath('data.rows.0.payment_intent_id', $intent)
+            ->assertJsonPath('data.rows.0.gateway', 'bkash');
+
+        $this->withHeaders($this->authHeader($admin->fresh()))
+            ->getJson('/api/v1/admin/reports/subscriptions-payments?refund_reason=customer&limit=10')
+            ->assertOk()
+            ->assertJsonPath('data.summary.total_transactions', 0);
+
+        $this->withHeaders($this->authHeader($admin->fresh()))
+            ->postJson('/api/v1/admin/payments/' . $intent . '/refund', ['reason' => 'customer requested'])
+            ->assertOk();
+
+        $this->withHeaders($this->authHeader($admin->fresh()))
+            ->getJson('/api/v1/admin/reports/subscriptions-payments?payment_status=refunded&refund_reason=customer&limit=10')
+            ->assertOk()
+            ->assertJsonPath('data.summary.total_transactions', 1)
+            ->assertJsonPath('data.summary.refunded_amount', 189)
+            ->assertJsonPath('data.rows.0.status', 'refunded');
+    }
 }
