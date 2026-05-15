@@ -1,89 +1,32 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
+import { ADMIN_SECTIONS } from '../admin/adminSections'
 import './AdminDashboardPage.css'
 
 const MAIN_MENU = [
-  'Dashboard',
-  'Users',
-  'Contests',
-  'Live Matches',
-  'Leaderboards',
-  'Subscriptions',
-  'Payments',
-  'Badges & Rewards',
-  'Reports & Analytics',
-  'Typing Content',
-  'Notifications',
-  'Support Tickets',
-  'Advertisements',
-  'Sponsors',
-  'CMS Management',
-  'Settings',
-  'Admins & Roles',
-  'Activity Logs',
-  'System Monitoring',
-  'API Management',
-  'Security Center',
-  'Backup & Maintenance',
-  'Logout',
-]
-
-const USER_SUBMENUS = [
-  'All Users',
-  'Free Users',
-  'Pro Users',
-  'VIP Users',
-  'Banned Users',
-  'Online Users',
-  'User Reports',
-  'User Activity Logs',
-]
-
-const CONTEST_SUBMENUS = [
-  'All Contests',
-  'Daily Contests',
-  'Weekly Contests',
-  'Monthly Contests',
-  'Tournament Events',
-  'Create Contest',
-  'Contest Categories',
-  'Contest Results',
-]
-
-const LEADERBOARD_SUBMENUS = [
-  'Global Rankings',
-  'Country Rankings',
-  'Daily Rankings',
-  'Weekly Rankings',
-  'Monthly Rankings',
-  'Top 10 Players',
-]
-
-const ANALYTICS_SUBMENUS = [
-  'User Analytics',
-  'Contest Analytics',
-  'Revenue Reports',
-  'Traffic Reports',
-  'Typing Statistics',
-  'Growth Reports',
-]
-
-const CONTENT_SUBMENUS = [
-  'Paragraph Library',
-  'Add Paragraph',
-  'Categories',
-  'Programming Texts',
-  'English Texts',
-  'Bangla Texts',
-]
-
-const SETTINGS_SUBMENUS = [
-  'General Settings',
-  'Contest Settings',
-  'Ranking Settings',
-  'Notification Settings',
-  'Theme Settings',
-  'Localization',
+  { label: 'Dashboard', path: '/admin/dashboard' },
+  { label: 'Users', path: '/admin/section/users' },
+  { label: 'Contests', path: '/admin/section/contests' },
+  { label: 'Live Matches', path: '/admin/section/live-matches' },
+  { label: 'Leaderboards', path: '/admin/section/leaderboards' },
+  { label: 'Subscriptions', path: '/admin/section/subscriptions' },
+  { label: 'Payments', path: '/admin/section/payments' },
+  { label: 'Badges & Rewards', path: '/admin/section/badges-rewards' },
+  { label: 'Reports & Analytics', path: '/admin/section/reports-analytics' },
+  { label: 'Typing Content', path: '/admin/section/typing-content' },
+  { label: 'Notifications', path: '/admin/section/notifications' },
+  { label: 'Support Tickets', path: '/admin/section/support-tickets' },
+  { label: 'Advertisements', path: '/admin/section/advertisements' },
+  { label: 'Sponsors', path: '/admin/section/sponsors' },
+  { label: 'CMS Management', path: '/admin/section/cms-management' },
+  { label: 'Settings', path: '/admin/section/settings' },
+  { label: 'Admins & Roles', path: '/admin/section/admins-roles' },
+  { label: 'Activity Logs', path: '/admin/section/activity-logs' },
+  { label: 'System Monitoring', path: '/admin/section/system-monitoring' },
+  { label: 'API Management', path: '/admin/section/api-management' },
+  { label: 'Security Center', path: '/admin/section/security-center' },
+  { label: 'Backup & Maintenance', path: '/admin/section/backup-maintenance' },
+  { label: 'Logout', path: '/login' },
 ]
 
 const WIDGETS = [
@@ -136,7 +79,9 @@ export default function AdminDashboardPage() {
           <h2>Main Sidebar Menu</h2>
           <ul>
             {MAIN_MENU.map((menu) => (
-              <li key={menu}>{menu}</li>
+              <li key={menu.label}>
+                <Link to={menu.path}>{menu.label}</Link>
+              </li>
             ))}
           </ul>
         </aside>
@@ -155,74 +100,14 @@ export default function AdminDashboardPage() {
           </section>
 
           <section className="admin-dashboard-modules">
-            <ModuleCard
-              title="Users Module"
-              items={USER_SUBMENUS}
-              features={[
-                'Search users',
-                'Ban/unban',
-                'Reset password',
-                'Contest history',
-                'Suspicious activity review',
-              ]}
-            />
-
-            <ModuleCard
-              title="Contests Module"
-              items={CONTEST_SUBMENUS}
-              features={[
-                'Create contests',
-                'Edit contests',
-                'Cancel contests',
-                'Clone contests',
-                'Schedule contests',
-              ]}
-            />
-
-            <ModuleCard
-              title="Leaderboards"
-              items={LEADERBOARD_SUBMENUS}
-              features={['Reset rankings', 'Recalculate score', 'Remove fake scores']}
-            />
-
-            <ModuleCard
-              title="Reports & Analytics"
-              items={ANALYTICS_SUBMENUS}
-              features={['Daily users', 'Revenue chart', 'Contest engagement', 'User retention']}
-            />
-
-            <ModuleCard
-              title="Typing Content"
-              items={CONTENT_SUBMENUS}
-              features={['Upload content', 'Approve/reject text', 'Difficulty level management']}
-            />
-
-            <ModuleCard
-              title="Settings"
-              items={SETTINGS_SUBMENUS}
-              features={['Spatie role permissions', 'Localization', 'Theme controls']}
-            />
-
-            <ModuleCard
-              title="Operations"
-              features={[
-                'Live participants and WPM monitoring',
-                'Payment verification and gateway controls',
-                'Support ticket management',
-                'Activity and audit logs',
-              ]}
-            />
-
-            <ModuleCard
-              title="Security & Infrastructure"
-              features={[
-                'Suspicious login detection',
-                'Cheat detection and IP bans',
-                'CPU/RAM monitoring',
-                'API rate limits and token management',
-                'Backup and maintenance workflows',
-              ]}
-            />
+            {ADMIN_SECTIONS.map((section) => (
+              <ModuleCard
+                key={section.slug}
+                title={section.title}
+                items={section.submenus}
+                features={section.features}
+              />
+            ))}
           </section>
         </section>
       </div>

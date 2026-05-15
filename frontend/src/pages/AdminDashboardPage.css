@@ -28,9 +28,20 @@
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.74);
   border-radius: 10px;
-  padding: 0.5rem 0.6rem;
+  padding: 0;
   font-size: 0.9rem;
   font-weight: 600;
+}
+
+.admin-dashboard-sidebar li a {
+  display: block;
+  padding: 0.5rem 0.6rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.admin-dashboard-sidebar li a:hover {
+  background: rgba(19, 143, 149, 0.08);
 }
 
 .admin-dashboard-main {

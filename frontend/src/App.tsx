@@ -9,6 +9,7 @@ import ContestDetailPage from './pages/ContestDetailPage'
 import TypingArenaPage from './pages/TypingArenaPage'
 import AdminContestsPage from './pages/AdminContestsPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import AdminSectionPage from './pages/AdminSectionPage'
 import './App.css'
 
 function App() {
@@ -39,6 +40,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminContestsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/section/:slug"
+          element={
+            <ProtectedRoute>
+              <AdminSectionPage />
             </ProtectedRoute>
           }
         />
