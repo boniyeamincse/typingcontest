@@ -53,6 +53,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/contests/{contest}', [ContestController::class, 'show']);
     Route::get('/contests/{contest}/leaderboard', [LeaderboardController::class, 'contest']);
     Route::get('/leaderboard', [LeaderboardController::class, 'global']);
+    Route::get('/leaderboard/top-10', [LeaderboardController::class, 'topTen']);
     Route::get('/leaderboard/daily', [LeaderboardController::class, 'daily']);
     Route::get('/leaderboard/weekly', [LeaderboardController::class, 'weekly']);
     Route::get('/leaderboard/monthly', [LeaderboardController::class, 'monthly']);

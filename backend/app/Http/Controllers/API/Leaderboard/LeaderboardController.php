@@ -20,6 +20,13 @@ class LeaderboardController extends Controller
         return $this->success('Leaderboard fetched successfully', LeaderboardEntryResource::collection($rows));
     }
 
+    public function topTen(Request $request): JsonResponse
+    {
+        $rows = $this->leaderboardService->getTopTen();
+
+        return $this->success('Leaderboard fetched successfully', LeaderboardEntryResource::collection($rows));
+    }
+
     public function contest(Request $request, int $contest): JsonResponse
     {
         if (!Contest::query()->whereKey($contest)->exists()) {

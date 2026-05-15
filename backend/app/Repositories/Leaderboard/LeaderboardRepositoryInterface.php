@@ -17,6 +17,8 @@ interface LeaderboardRepositoryInterface
 
     public function fetchContestLeaderboard(int $contestId, int $limit = 10): Collection;
 
+    public function fetchContestLeaderboardByUserIds(int $contestId, array $userIds): Collection;
+
     public function aggregateScope(string $type, ?string $periodKey = null, ?string $countryCode = null): Collection;
 
     public function upsertRankingRow(int $userId, string $type, ?string $periodKey, ?string $countryCode, array $data): void;
@@ -24,6 +26,8 @@ interface LeaderboardRepositoryInterface
     public function upsertLeaderboardRow(int $userId, string $type, ?string $periodKey, ?string $countryCode, array $data): void;
 
     public function fetchLeaderboard(string $type, ?string $periodKey = null, ?string $countryCode = null, int $limit = 10): Collection;
+
+    public function fetchLeaderboardByUserIds(string $type, ?string $periodKey, ?string $countryCode, array $userIds): Collection;
 
     public function insertRankingHistory(array $rows): void;
 }

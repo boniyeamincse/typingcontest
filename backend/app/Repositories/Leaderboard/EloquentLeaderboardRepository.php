@@ -93,6 +93,15 @@ class EloquentLeaderboardRepository implements LeaderboardRepositoryInterface
             ->get();
     }
 
+    public function fetchContestLeaderboardByUserIds(int $contestId, array $userIds): Collection
+    {
+        return ContestRanking::query()
+            ->with('user:id,username,avatar,country')
+            ->where('contest_id', $contestId)
+            ->whereIn('user_id', $userIds)
+            ->get();
+    }
+
     public function aggregateScope(string $type, ?string $periodKey = null, ?string $countryCode = null): Collection
     {
         $query = UserScore::query()
@@ -208,6 +217,17 @@ class EloquentLeaderboardRepository implements LeaderboardRepositoryInterface
             ->when($countryCode, fn ($q) => $q->where('country_code', strtoupper($countryCode)))
             ->orderBy('rank')
             ->limit($limit)
+            ->get();
+    }
+
+    public function fetchLeaderboardByUserIds(string $type, ?string $periodKey, ?string $countryCode, array $userIds): Collection
+    {
+        return Leaderboard::query()
+            ->with('user:id,username,avatar,country')
+            ->where('type', $type)
+            ->when($periodKey, fn ($q) => $q->where('period_key', $periodKey))
+            ->when($countryCode, fn ($q) => $q->where('country_code', strtoupper($countryCode)))
+            ->whereIn('user_id', $userIds)
             ->get();
     }
 

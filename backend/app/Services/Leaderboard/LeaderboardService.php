@@ -3,15 +3,19 @@
 namespace App\Services\Leaderboard;
 
 use App\Events\Leaderboard\LeaderboardUpdated;
+use App\Models\Contest;
 use App\Models\TypingResult;
 use App\Repositories\Leaderboard\LeaderboardRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class LeaderboardService
 {
     private const CACHE_TTL_SECONDS = 120;
+    private const REDIS_FETCH_MULTIPLIER = 5;
+    private const REDIS_FETCH_CAP = 500;
 
     public function __construct(private readonly LeaderboardRepositoryInterface $repository) {}
 
@@ -64,7 +68,16 @@ class LeaderboardService
                 $this->refreshScope('country', 'all-time', $countryCode);
             }
 
-            $this->cacheContest((int) $result->contest_id);
+            $this->syncRedisContest((int) $result->contest_id);
+            $this->syncRedisScope('global', 'all-time', null);
+            $this->syncRedisScope('daily', now()->toDateString(), null);
+            $this->syncRedisScope('weekly', now()->format('o-\\WW'), null);
+            $this->syncRedisScope('monthly', now()->format('Y-m'), null);
+
+            if ($countryCode !== '') {
+                $this->syncRedisScope('country', 'all-time', $countryCode);
+            }
+
             $this->broadcastContest((int) $result->contest_id);
             $this->broadcastScope('global', 'all-time');
             $this->broadcastScope('daily', now()->toDateString());
@@ -75,6 +88,13 @@ class LeaderboardService
                 $this->broadcastScope('country', 'all-time', $countryCode);
             }
         });
+
+        $this->invalidateContestCache((int) $result->contest_id);
+        $this->invalidatePeriodCaches();
+
+        if ($countryCode !== '') {
+            $this->invalidateScopeCache('country', 'all-time', $countryCode);
+        }
     }
 
     public function getGlobal(int $limit): Collection
@@ -82,7 +102,7 @@ class LeaderboardService
         return Cache::remember(
             $this->scopeCacheKey('global', 'all-time', null, $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchLeaderboard('global', 'all-time', null, $limit)
+            fn () => $this->readScopeFromRedis('global', 'all-time', null, $limit)
         );
     }
 
@@ -91,8 +111,13 @@ class LeaderboardService
         return Cache::remember(
             $this->contestCacheKey($contestId, $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchContestLeaderboard($contestId, $limit)
+            fn () => $this->readContestFromRedis($contestId, $limit)
         );
+    }
+
+    public function getTopTen(): Collection
+    {
+        return $this->getGlobal(10);
     }
 
     public function getDaily(int $limit): Collection
@@ -102,7 +127,7 @@ class LeaderboardService
         return Cache::remember(
             $this->scopeCacheKey('daily', $period, null, $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchLeaderboard('daily', $period, null, $limit)
+            fn () => $this->readScopeFromRedis('daily', $period, null, $limit)
         );
     }
 
@@ -113,7 +138,7 @@ class LeaderboardService
         return Cache::remember(
             $this->scopeCacheKey('weekly', $period, null, $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchLeaderboard('weekly', $period, null, $limit)
+            fn () => $this->readScopeFromRedis('weekly', $period, null, $limit)
         );
     }
 
@@ -124,7 +149,7 @@ class LeaderboardService
         return Cache::remember(
             $this->scopeCacheKey('monthly', $period, null, $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchLeaderboard('monthly', $period, null, $limit)
+            fn () => $this->readScopeFromRedis('monthly', $period, null, $limit)
         );
     }
 
@@ -133,8 +158,28 @@ class LeaderboardService
         return Cache::remember(
             $this->scopeCacheKey('country', 'all-time', strtoupper($countryCode), $limit),
             self::CACHE_TTL_SECONDS,
-            fn () => $this->repository->fetchLeaderboard('country', 'all-time', strtoupper($countryCode), $limit)
+            fn () => $this->readScopeFromRedis('country', 'all-time', strtoupper($countryCode), $limit)
         );
+    }
+
+    public function invalidateContestCache(Contest|int $contest): void
+    {
+        $contestId = $contest instanceof Contest ? $contest->id : $contest;
+
+        Cache::forget($this->contestCacheKey($contestId, 10));
+        Cache::forget($this->contestCacheKey($contestId, 50));
+        Cache::forget($this->contestCacheKey($contestId, 100));
+        Cache::forget($this->contestCacheKey($contestId, 200));
+    }
+
+    public function invalidatePeriodCaches(): void
+    {
+        foreach ([10, 50, 100, 200] as $limit) {
+            Cache::forget($this->scopeCacheKey('global', 'all-time', null, $limit));
+            Cache::forget($this->scopeCacheKey('daily', now()->toDateString(), null, $limit));
+            Cache::forget($this->scopeCacheKey('weekly', now()->format('o-\\WW'), null, $limit));
+            Cache::forget($this->scopeCacheKey('monthly', now()->format('Y-m'), null, $limit));
+        }
     }
 
     public function calculateScore(
@@ -210,6 +255,119 @@ class LeaderboardService
 
         $this->repository->insertRankingHistory($historyRows);
         $this->invalidateScopeCache($type, $periodKey, $countryCode);
+    }
+
+    private function syncRedisScope(string $type, string $periodKey, ?string $countryCode): void
+    {
+        if (! $this->supportsRedis()) {
+            return;
+        }
+
+        $rows = $this->repository->fetchLeaderboard($type, $periodKey, $countryCode, self::REDIS_FETCH_CAP);
+        $this->writeSortedSet($this->scopeRedisKey($type, $periodKey, $countryCode), $rows);
+    }
+
+    private function syncRedisContest(int $contestId): void
+    {
+        if (! $this->supportsRedis()) {
+            return;
+        }
+
+        $rows = $this->repository->fetchContestLeaderboard($contestId, self::REDIS_FETCH_CAP);
+        $this->writeSortedSet($this->contestRedisKey($contestId), $rows);
+    }
+
+    private function readScopeFromRedis(string $type, string $periodKey, ?string $countryCode, int $limit): Collection
+    {
+        if (! $this->supportsRedis()) {
+            return $this->repository->fetchLeaderboard($type, $periodKey, $countryCode, $limit);
+        }
+
+        $key = $this->scopeRedisKey($type, $periodKey, $countryCode);
+        $userIds = $this->readSortedSetIds($key, $limit);
+
+        if ($userIds === []) {
+            return $this->repository->fetchLeaderboard($type, $periodKey, $countryCode, $limit);
+        }
+
+        $rows = $this->repository->fetchLeaderboardByUserIds($type, $periodKey, $countryCode, $userIds);
+
+        return $this->rankRows($rows, $userIds, $limit);
+    }
+
+    private function readContestFromRedis(int $contestId, int $limit): Collection
+    {
+        if (! $this->supportsRedis()) {
+            return $this->repository->fetchContestLeaderboard($contestId, $limit);
+        }
+
+        $key = $this->contestRedisKey($contestId);
+        $userIds = $this->readSortedSetIds($key, $limit);
+
+        if ($userIds === []) {
+            return $this->repository->fetchContestLeaderboard($contestId, $limit);
+        }
+
+        $rows = $this->repository->fetchContestLeaderboardByUserIds($contestId, $userIds);
+
+        return $this->rankRows($rows, $userIds, $limit);
+    }
+
+    private function readSortedSetIds(string $key, int $limit): array
+    {
+        if (! $this->supportsRedis()) {
+            return [];
+        }
+
+        $fetchLimit = min(max($limit * self::REDIS_FETCH_MULTIPLIER, $limit), self::REDIS_FETCH_CAP) - 1;
+        $rows = Redis::zrevrange($key, 0, max(0, $fetchLimit));
+
+        return array_values(array_map('intval', is_array($rows) ? $rows : []));
+    }
+
+    private function writeSortedSet(string $key, Collection $rows): void
+    {
+        if (! $this->supportsRedis()) {
+            return;
+        }
+
+        Redis::del($key);
+
+        if ($rows->isEmpty()) {
+            return;
+        }
+
+        Redis::pipeline(function ($pipe) use ($key, $rows): void {
+            foreach ($rows as $row) {
+                $pipe->zadd($key, (float) $row->score, (string) $row->user_id);
+            }
+        });
+    }
+
+    private function rankRows(Collection $rows, array $orderedIds, int $limit): Collection
+    {
+        return $rows
+            ->sort(function ($left, $right): int {
+                $leftScore = [
+                    -(float) $left->score,
+                    -(float) ($left->accuracy ?? 0),
+                    (int) ($left->errors ?? 0),
+                    (int) ($left->completion_time_ms ?? 0),
+                    (int) $left->user_id,
+                ];
+
+                $rightScore = [
+                    -(float) $right->score,
+                    -(float) ($right->accuracy ?? 0),
+                    (int) ($right->errors ?? 0),
+                    (int) ($right->completion_time_ms ?? 0),
+                    (int) $right->user_id,
+                ];
+
+                return $leftScore <=> $rightScore;
+            })
+            ->values()
+            ->take($limit);
     }
 
     private function detectAnomaly(TypingResult $result): ?string
@@ -295,7 +453,7 @@ class LeaderboardService
 
     private function contestCacheKey(int $contestId, int $limit): string
     {
-        return "leaderboard:v2:contest:{$contestId}:{$limit}";
+        return "leaderboard:v2:response:contest:{$contestId}:{$limit}";
     }
 
     private function invalidateScopeCache(string $type, string $periodKey, ?string $countryCode): void
@@ -303,6 +461,21 @@ class LeaderboardService
         foreach ([10, 50, 100, 200] as $limit) {
             Cache::forget($this->scopeCacheKey($type, $periodKey, $countryCode, $limit));
         }
+    }
+
+    private function scopeRedisKey(string $type, string $periodKey, ?string $countryCode): string
+    {
+        return 'leaderboard:' . $type . ':' . $periodKey . ':' . ($countryCode ?: 'all');
+    }
+
+    private function contestRedisKey(int $contestId): string
+    {
+        return 'leaderboard:contest:' . $contestId;
+    }
+
+    private function supportsRedis(): bool
+    {
+        return class_exists(\Redis::class);
     }
 
     private function safeBroadcast(object $event): void
