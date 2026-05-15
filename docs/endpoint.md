@@ -21,6 +21,64 @@ Authorization: Bearer <jwt_token>
 Accept: application/json
 ```
 
+For `POST` and `PUT` requests, also send:
+
+```http
+Content-Type: application/json
+```
+
+## API Conventions
+
+### Route Parameters
+
+- `{contest}` uses Laravel route-model binding and expects a contest ID.
+- `{username}` expects the user's unique username.
+
+### Common Enums
+
+- Contest `type`: `daily`, `weekly`, `monthly`, `special`
+- User `plan_type`: `free`, `pro`
+- Leaderboard `type`: `global`, `daily`, `weekly`, `monthly`, `country`
+
+### Pagination
+
+The following endpoints return Laravel paginator JSON objects instead of plain arrays:
+
+- `GET /contests`
+- `GET /leaderboard`
+- `GET /admin/contests`
+
+Typical paginator fields include:
+
+- `current_page`
+- `data`
+- `per_page`
+- `total`
+- `last_page`
+
+### Common Error Responses
+
+Typical error status codes used by the current API:
+
+- `401 Unauthorized`: missing or invalid JWT token, or invalid login credentials
+- `403 Forbidden`: authenticated user is not allowed to access the resource
+- `404 Not Found`: route-model binding failed or requested record was not found
+- `422 Unprocessable Entity`: validation failed
+- `500 Internal Server Error`: token generation or refresh failure
+
+Typical validation error format:
+
+```json
+{
+  "message": "The given data was invalid.",
+  "errors": {
+    "email": [
+      "The email field is required."
+    ]
+  }
+}
+```
+
 ## Public Endpoints
 
 ### POST /auth/register
@@ -84,14 +142,30 @@ Success response: `200 OK`
 }
 ```
 
+Failure response: `401 Unauthorized`
+
+```json
+{
+  "error": "Unauthorized"
+}
+```
+
 ### GET /contests
 List published and active contests.
 
 Optional query parameters:
 - `type`: `daily`, `weekly`, `monthly`, `special`
 
+Response shape:
+- paginated Laravel resource payload
+- sorted by contest status first, then `start_time`
+
 ### GET /contests/{contest}
 Get contest details, participant count, and linked typing text metadata.
+
+Notes:
+- returns `404` when the contest is not publicly visible
+- current public visibility states are `published`, `active`, and `finished`
 
 ### GET /contests/{contest}/leaderboard
 Get the top 50 results for a contest.
@@ -101,6 +175,10 @@ Get the global leaderboard.
 
 Optional query parameters:
 - `page`: integer
+
+Notes:
+- uses leaderboard rows where `type = global`
+- uses `period_key = all-time`
 
 ### GET /leaderboard/daily
 Get the daily leaderboard.
@@ -142,6 +220,8 @@ Invalidate the current JWT token.
 ### POST /auth/refresh
 Refresh the current JWT token.
 
+Success response includes a newly issued `token`.
+
 ### POST /contests/{contest}/join
 Join a published or active contest.
 
@@ -165,6 +245,7 @@ Get the contest typing text for a joined user.
 Notes:
 - Only available when the contest status is `active`.
 - The authenticated user must already have joined the contest.
+- If the user did not join, the endpoint returns `404`.
 
 ### POST /contests/{contest}/submit
 Submit a contest result.
@@ -186,6 +267,10 @@ Validation:
 - `errors`: integer, `>= 0`
 - `keystroke_timings`: optional array
 
+Response:
+- success message
+- stored `result` payload
+
 ### GET /contests/{contest}/result
 Get the authenticated user's result for a contest.
 
@@ -202,6 +287,7 @@ Get contest submission history for the authenticated user.
 Behavior:
 - `pro` users: up to 100 items
 - `free` users: up to 10 items
+- ordered by `submitted_at` descending
 
 ### GET /profile/stats
 Get aggregated user statistics.
@@ -228,6 +314,9 @@ List contests for admin management.
 
 Optional query parameters:
 - `status`
+
+Response shape:
+- paginated Laravel resource payload
 
 ### POST /admin/contests
 Create a contest in `draft` status.
@@ -266,8 +355,15 @@ Rule:
 ### POST /admin/contests/{contest}/publish
 Publish a contest.
 
+Response:
+- success message
+- updated contest payload
+
 ### POST /admin/contests/{contest}/cancel
 Cancel a contest.
+
+Response:
+- success message only
 
 ## Route Summary
 
@@ -284,3 +380,19 @@ Total documented routes: 27
 - Current API version prefix is `/api/v1`.
 - This file is intended to reflect the implemented routes in `backend/routes/api.php`.
 - The older `api_documentation.md` file still contains planning-era endpoints and auth details that differ from the current implementation.
+
+## Recommended Next Endpoints
+
+These are not implemented yet, but they are high-value additions for a production-ready project:
+
+- `POST /auth/forgot-password` for password reset initiation
+- `POST /auth/reset-password` for password reset completion
+- `PATCH /profile` for user profile updates
+- `GET /notifications` and `POST /notifications/{id}/read` for in-app notifications
+- `GET /plans` and subscription checkout endpoints for billing flow
+- `GET /health` or `GET /status` for deployment and monitoring checks
+
+## Implementation Notes Found During Review
+
+- The documentation above reflects the current route file and controller methods.
+- There is a backend inconsistency around contest cancellation: the controller sets status to `cancelled`, while contest status enums in migrations currently show `draft`, `published`, `active`, `finished` or `completed` depending on migration version. This should be aligned in code and schema before relying on the cancel flow in production.
