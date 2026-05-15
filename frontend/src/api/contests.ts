@@ -34,6 +34,16 @@ export type ContestResult = {
   user?: { id: number; name: string }
 }
 
+export type AdminContestInput = {
+  title: string
+  type: 'daily' | 'weekly' | 'monthly' | 'special'
+  typing_text_id: number
+  start_time: string
+  end_time: string
+  max_participants?: number
+  prize_description?: string
+}
+
 export type PaginatedResponse<T> = {
   data: T[]
   total: number
@@ -166,29 +176,82 @@ export function submitResult(
 
 export function createContest(
   token: string,
-  payload: {
-    title: string
-    type: ContestType
-    text_content: string
-    duration_seconds: number
-    starts_at?: string
-    ends_at?: string
-  },
+  payload: AdminContestInput,
 ): Promise<Contest> {
-  return request<Contest>(
+  return request<any>(
     '/admin/contests',
     { method: 'POST', body: JSON.stringify(payload) },
     token,
-  )
+  ).then((raw) => normalizeContest(raw?.contest ?? raw))
 }
 
 export function publishContest(
   id: number,
   token: string,
 ): Promise<{ message: string; contest: Contest }> {
-  return request<{ message: string; contest: Contest }>(
+  return request<any>(
     `/admin/contests/${id}/publish`,
     { method: 'POST' },
     token,
+  ).then((raw) => ({
+    message: String(raw?.message ?? 'Contest published successfully'),
+    contest: normalizeContest(raw?.contest ?? { id }),
+  }))
+}
+
+export function cancelContest(
+  id: number,
+  token: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>(
+    `/admin/contests/${id}/cancel`,
+    { method: 'POST' },
+    token,
+  )
+}
+
+export function deleteContest(
+  id: number,
+  token: string,
+): Promise<{ message: string }> {
+  return request<{ message: string }>(
+    `/admin/contests/${id}`,
+    { method: 'DELETE' },
+    token,
+  )
+}
+
+export function updateContest(
+  id: number,
+  token: string,
+  payload: Partial<AdminContestInput>,
+): Promise<Contest> {
+  return request<any>(
+    `/admin/contests/${id}`,
+    { method: 'PUT', body: JSON.stringify(payload) },
+    token,
+  ).then((raw) => normalizeContest(raw?.contest ?? raw))
+}
+
+export function listAdminContests(
+  token: string,
+  params?: { status?: ContestStatus; page?: number },
+): Promise<PaginatedResponse<Contest>> {
+  const query = new URLSearchParams()
+  if (params?.status) query.set('status', params.status)
+  if (params?.page) query.set('page', String(params.page))
+  const qs = query.toString()
+
+  return request<any>(`/admin/contests${qs ? `?${qs}` : ''}`, { method: 'GET' }, token).then(
+    (payload) => {
+      const rows = Array.isArray(payload?.data) ? payload.data : []
+      return {
+        data: rows.map((row: any) => normalizeContest(row)),
+        total: Number(payload?.total ?? rows.length),
+        per_page: Number(payload?.per_page ?? rows.length),
+        current_page: Number(payload?.current_page ?? 1),
+        last_page: Number(payload?.last_page ?? 1),
+      }
+    },
   )
 }

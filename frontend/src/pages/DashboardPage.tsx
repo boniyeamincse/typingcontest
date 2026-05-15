@@ -47,6 +47,9 @@ export function DashboardPage() {
           <Link to="/contests" className="btn-primary">
             Browse Contests
           </Link>
+          <Link to="/admin/contests" className="btn-secondary">
+            Manage Contests
+          </Link>
           <button className="btn-secondary" onClick={onLogout} disabled={loading}>
             {loading ? 'Signing out...' : 'Logout'}
           </button>
