@@ -18,7 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
     'name', 'username', 'email', 'password', 'avatar', 'country',
     'plan_type', 'subscription_status', 'subscription_end_date',
     'xp_points', 'global_rank', 'total_wpm', 'accuracy_avg', 'is_banned',
-    'last_login_at', 'last_login_ip', 'last_login_user_agent'
+    'last_login_at', 'last_login_ip', 'last_login_user_agent',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements MustVerifyEmail
@@ -91,6 +91,21 @@ class User extends Authenticatable implements MustVerifyEmail
     public function twoFactorAuth(): HasOne
     {
         return $this->hasOne(TwoFactorAuth::class);
+    }
+
+    public function profile(): HasOne
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+    public function statistic(): HasOne
+    {
+        return $this->hasOne(UserStatistic::class);
+    }
+
+    public function activities(): HasMany
+    {
+        return $this->hasMany(UserActivity::class);
     }
 }
 

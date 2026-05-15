@@ -13,10 +13,12 @@ class UserBadge extends Model
         'user_id',
         'badge_id',
         'earned_at',
+        'is_featured',
     ];
 
     protected $casts = [
-        'earned_at' => 'datetime',
+        'earned_at'   => 'datetime',
+        'is_featured' => 'boolean',
     ];
 
     public function user()

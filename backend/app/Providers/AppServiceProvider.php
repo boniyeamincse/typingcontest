@@ -8,6 +8,12 @@ use App\Repositories\Auth\EloquentUserRepository;
 use App\Repositories\Auth\LoginActivityRepositoryInterface;
 use App\Repositories\Auth\SocialAccountRepositoryInterface;
 use App\Repositories\Auth\UserRepositoryInterface;
+use App\Repositories\Profile\ActivityRepositoryInterface;
+use App\Repositories\Profile\EloquentActivityRepository;
+use App\Repositories\Profile\EloquentProfileRepository;
+use App\Repositories\Profile\EloquentStatisticRepository;
+use App\Repositories\Profile\ProfileRepositoryInterface;
+use App\Repositories\Profile\StatisticRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
@@ -23,6 +29,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, EloquentUserRepository::class);
         $this->app->bind(SocialAccountRepositoryInterface::class, EloquentSocialAccountRepository::class);
         $this->app->bind(LoginActivityRepositoryInterface::class, EloquentLoginActivityRepository::class);
+
+        // Profile module
+        $this->app->bind(ProfileRepositoryInterface::class, EloquentProfileRepository::class);
+        $this->app->bind(StatisticRepositoryInterface::class, EloquentStatisticRepository::class);
+        $this->app->bind(ActivityRepositoryInterface::class, EloquentActivityRepository::class);
     }
 
     /**

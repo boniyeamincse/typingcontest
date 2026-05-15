@@ -1,7 +1,16 @@
 export type AuthUser = {
   id: number
+  username: string
   name: string
   email: string
+  avatar?: string | null
+  country?: string
+  plan_type?: 'free' | 'pro'
+  subscription_status?: string
+  xp_points?: number
+  global_rank?: number | null
+  total_wpm?: number
+  accuracy_avg?: number
   created_at?: string
   updated_at?: string
 }
