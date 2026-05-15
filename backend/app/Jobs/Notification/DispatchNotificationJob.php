@@ -14,14 +14,24 @@ class DispatchNotificationJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public string $queue = 'notifications';
+    public array $channels;
+    public int $userId;
+    public string $title;
+    public string $message;
+    public array $payload;
 
     public function __construct(
-        private array $channels,
-        private int $userId,
-        private string $title,
-        private string $message,
-        private array $payload = [],
+        array $channels,
+        int $userId,
+        string $title,
+        string $message,
+        array $payload = [],
     ) {
+        $this->channels = $channels;
+        $this->userId = $userId;
+        $this->title = $title;
+        $this->message = $message;
+        $this->payload = $payload;
     }
 
     public function handle(): void
