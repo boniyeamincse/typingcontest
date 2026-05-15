@@ -35,7 +35,7 @@ export function LoginPage() {
     <main className="auth-page">
       <section className="auth-card">
         <h1>TypingContest Login</h1>
-        <p>Sign in to access your contests and leaderboard progress.</p>
+        <p>Sign in to continue your streak, track rank shifts, and join active rooms.</p>
 
         <form className="auth-form" onSubmit={onSubmit}>
           <label>

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
+import { AppShell } from '../components/AppShell'
 
 export function DashboardPage() {
   const navigate = useNavigate()
@@ -18,10 +19,14 @@ export function DashboardPage() {
   }
 
   return (
-    <main className="dashboard-page">
+    <AppShell
+      title={`Welcome back, ${user?.name ?? 'Player'}`}
+      subtitle="Monitor your account status, then jump into active competitions."
+    >
       <section className="dashboard-card">
-        <h1>Welcome, {user?.name}</h1>
-        <p className="lead-text">Your backend and frontend auth modules are connected.</p>
+        <p className="lead-text">
+          Your authentication flow is connected and ready for full gameplay.
+        </p>
 
         <div className="stat-grid">
           <article>
@@ -38,15 +43,15 @@ export function DashboardPage() {
           </article>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1.5rem' }}>
-          <Link to="/contests" className="logout-btn" style={{ textDecoration: 'none', textAlign: 'center' }}>
+        <div className="dash-actions">
+          <Link to="/contests" className="btn-primary">
             Browse Contests
           </Link>
-          <button className="logout-btn" onClick={onLogout} disabled={loading}>
+          <button className="btn-secondary" onClick={onLogout} disabled={loading}>
             {loading ? 'Signing out...' : 'Logout'}
           </button>
         </div>
       </section>
-    </main>
+    </AppShell>
   )
 }

@@ -3,7 +3,16 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { getContest, getContestLeaderboard, joinContest } from '../api/contests'
 import type { Contest, ContestResult } from '../api/contests'
 import { useAuth } from '../auth/AuthContext'
+import { AppShell } from '../components/AppShell'
 import './ContestDetailPage.css'
+
+function statusLabel(status: string): string {
+  if (status === 'published') return 'Upcoming'
+  if (status === 'active') return 'Live'
+  if (status === 'finished') return 'Finished'
+  if (status === 'completed') return 'Ended'
+  return status.charAt(0).toUpperCase() + status.slice(1)
+}
 
 export default function ContestDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -62,79 +71,77 @@ export default function ContestDetailPage() {
   const canPlay = contest.status === 'active'
 
   return (
-    <div className="contest-detail">
-      <header className="detail-header">
-        <Link to="/contests" className="back-link">← All Contests</Link>
-        <div className="detail-badges">
-          <span className={`badge badge--${contest.status}`}>{contest.status}</span>
-          <span className="badge badge--type">{contest.type}</span>
+    <AppShell
+      title={contest.title}
+      subtitle="Room overview, typing passage preview, and live ranking results."
+      actions={
+        <Link to="/contests" className="btn-secondary">
+          All Contests
+        </Link>
+      }
+    >
+      <div className="contest-detail surface-card">
+        <header className="detail-header">
+          <div className="detail-badges">
+            <span className={`badge badge--${contest.status}`}>{statusLabel(contest.status)}</span>
+            <span className="badge badge--type">{contest.type}</span>
+          </div>
+          <div className="detail-meta">
+            <span>{contest.durationSeconds}s round</span>
+            {contest.startsAt ? <span>Starts {new Date(contest.startsAt).toLocaleString()}</span> : null}
+            {contest.endsAt ? <span>Ends {new Date(contest.endsAt).toLocaleString()}</span> : null}
+          </div>
+        </header>
+
+        <div className="detail-text-preview">
+          <h2>Typing Passage</h2>
+          <blockquote>{contest.textContent}</blockquote>
         </div>
-      </header>
 
-      <h1 className="detail-title">{contest.title}</h1>
+        {canPlay ? (
+          <button className="play-btn" onClick={handleJoinOrPlay} disabled={joining}>
+            {joining ? 'Joining...' : 'Play Now'}
+          </button>
+        ) : null}
 
-      <div className="detail-meta">
-        <span>⏱ {contest.duration_seconds}s</span>
-        {contest.starts_at && (
-          <span>📅 {new Date(contest.starts_at).toLocaleString()}</span>
-        )}
-        {contest.ends_at && (
-          <span>⏳ Ends {new Date(contest.ends_at).toLocaleString()}</span>
-        )}
-      </div>
+        {contest.status === 'published' ? (
+          <p className="detail-upcoming">
+            This room is upcoming. Join once it switches to active.
+          </p>
+        ) : null}
 
-      <div className="detail-text-preview">
-        <h2>Typing Passage</h2>
-        <blockquote>{contest.text_content}</blockquote>
-      </div>
-
-      {canPlay && (
-        <button
-          className="play-btn"
-          onClick={handleJoinOrPlay}
-          disabled={joining}
-        >
-          {joining ? 'Joining…' : '▶ Play Now'}
-        </button>
-      )}
-
-      {contest.status === 'published' && (
-        <p className="detail-upcoming">
-          Contest starts on {contest.starts_at ? new Date(contest.starts_at).toLocaleString() : 'TBD'}.
-        </p>
-      )}
-
-      <section className="leaderboard-section">
-        <h2>Leaderboard</h2>
-        {leaderboard.length === 0 ? (
-          <p className="empty-msg">No results yet.</p>
-        ) : (
-          <table className="leaderboard-table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Player</th>
-                <th>WPM</th>
-                <th>Accuracy</th>
-                <th>Errors</th>
-                <th>Score</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaderboard.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.rank ?? '—'}</td>
-                  <td>{r.user?.name ?? `User #${r.user_id}`}</td>
-                  <td>{r.wpm}</td>
-                  <td>{r.accuracy}%</td>
-                  <td>{r.errors}</td>
-                  <td>{r.score}</td>
+        <section className="leaderboard-section">
+          <h2>Leaderboard</h2>
+          {leaderboard.length === 0 ? (
+            <p className="empty-msg">No results yet.</p>
+          ) : (
+            <table className="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Player</th>
+                  <th>WPM</th>
+                  <th>Accuracy</th>
+                  <th>Errors</th>
+                  <th>Score</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
-    </div>
+              </thead>
+              <tbody>
+                {leaderboard.map((r) => (
+                  <tr key={r.id}>
+                    <td>{r.rank ?? '-'}</td>
+                    <td>{r.user?.name ?? `User #${r.user_id}`}</td>
+                    <td>{r.wpm}</td>
+                    <td>{r.accuracy}%</td>
+                    <td>{r.errors}</td>
+                    <td>{r.score}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
+      </div>
+    </AppShell>
   )
 }

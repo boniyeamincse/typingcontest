@@ -7,6 +7,7 @@ export function RegisterPage() {
   const navigate = useNavigate()
   const { register, isAuthenticated } = useAuth()
 
+  const [username, setUsername] = useState('')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -31,6 +32,7 @@ export function RegisterPage() {
 
     try {
       await register({
+        username,
         name,
         email,
         password,
@@ -48,9 +50,19 @@ export function RegisterPage() {
     <main className="auth-page">
       <section className="auth-card">
         <h1>Create Account</h1>
-        <p>Join TypingContest and start climbing the leaderboard.</p>
+        <p>Create your player profile and enter ranked typing contests.</p>
 
         <form className="auth-form" onSubmit={onSubmit}>
+          <label>
+            Username
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </label>
+
           <label>
             Name
             <input

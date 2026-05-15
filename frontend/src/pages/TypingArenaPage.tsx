@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { getContest, submitResult } from '../api/contests'
 import type { Contest } from '../api/contests'
 import { useAuth } from '../auth/AuthContext'
+import { AppShell } from '../components/AppShell'
 import './TypingArenaPage.css'
 
 type Phase = 'loading' | 'ready' | 'running' | 'finished' | 'error'
@@ -45,7 +46,7 @@ export default function TypingArenaPage() {
           return
         }
         setContest(c)
-        setTimeLeft(c.duration_seconds)
+        setTimeLeft(c.durationSeconds)
         setPhase('ready')
       })
       .catch((e: unknown) => {
@@ -79,7 +80,7 @@ export default function TypingArenaPage() {
       if (timerRef.current) clearInterval(timerRef.current)
       setPhase('finished')
 
-      const { wpm, errors, accuracy } = computeStats(typedText, contest.text_content)
+      const { wpm, errors, accuracy } = computeStats(typedText, contest.textContent)
       setFinalWpm(wpm)
       setFinalErrors(errors)
       setFinalAccuracy(accuracy)
@@ -121,8 +122,8 @@ export default function TypingArenaPage() {
     const val = e.target.value
     setTyped(val)
 
-    if (contest && val.length >= contest.text_content.length) {
-      finishRound(val.slice(0, contest.text_content.length))
+    if (contest && val.length >= contest.textContent.length) {
+      finishRound(val.slice(0, contest.textContent.length))
     }
   }
 
@@ -132,7 +133,7 @@ export default function TypingArenaPage() {
   if (phase === 'error') return <p className="arena-center error-msg">{error}</p>
   if (!contest) return null
 
-  const target = contest.text_content
+  const target = contest.textContent
   const liveStats =
     phase === 'running' ? computeStats(typed, target) : null
 
@@ -154,88 +155,103 @@ export default function TypingArenaPage() {
   }
 
   return (
-    <div className="typing-arena">
-      <header className="arena-header">
-        <h1>{contest.title}</h1>
-        <div className={`arena-timer ${timeLeft <= 10 && phase === 'running' ? 'arena-timer--urgent' : ''}`}>
-          {phase === 'running' ? `${timeLeft}s` : `${contest.duration_seconds}s`}
-        </div>
-      </header>
-
-      {phase === 'ready' && (
-        <div className="arena-ready">
-          <p>Read the passage below, then press <strong>Start</strong> when ready.</p>
-          <div className="arena-passage arena-passage--preview">{target}</div>
-          <button className="btn-start" onClick={startRound}>Start</button>
-        </div>
-      )}
-
-      {phase === 'running' && (
-        <>
-          <div className="arena-stats-live">
-            <span>WPM: <strong>{liveStats?.wpm ?? 0}</strong></span>
-            <span>Accuracy: <strong>{liveStats?.accuracy.toFixed(1) ?? 0}%</strong></span>
-            <span>Errors: <strong>{liveStats?.errors ?? 0}</strong></span>
+    <AppShell
+      title="Typing Arena"
+      subtitle="Stay accurate under pressure. Results submit automatically when the round ends."
+    >
+      <div className="typing-arena surface-card">
+        <header className="arena-header">
+          <h1>{contest.title}</h1>
+          <div className={`arena-timer ${timeLeft <= 10 && phase === 'running' ? 'arena-timer--urgent' : ''}`}>
+            {phase === 'running' ? `${timeLeft}s` : `${contest.durationSeconds}s`}
           </div>
+        </header>
 
-          <div className="arena-passage" aria-hidden="true">
-            {renderPassage()}
-          </div>
-
-          <textarea
-            ref={inputRef}
-            className="arena-input"
-            value={typed}
-            onChange={handleInput}
-            placeholder="Start typing here…"
-            rows={4}
-            spellCheck={false}
-            autoCorrect="off"
-            autoCapitalize="off"
-          />
-        </>
-      )}
-
-      {phase === 'finished' && (
-        <div className="arena-results">
-          <h2>Round Complete!</h2>
-          <div className="results-grid">
-            <div className="result-card">
-              <span className="result-label">WPM</span>
-              <span className="result-value">{finalWpm}</span>
-            </div>
-            <div className="result-card">
-              <span className="result-label">Accuracy</span>
-              <span className="result-value">{finalAccuracy.toFixed(1)}%</span>
-            </div>
-            <div className="result-card">
-              <span className="result-label">Errors</span>
-              <span className="result-value">{finalErrors}</span>
-            </div>
-            {score !== null && (
-              <div className="result-card result-card--highlight">
-                <span className="result-label">Score</span>
-                <span className="result-value">{score}</span>
-              </div>
-            )}
-            {rank !== null && (
-              <div className="result-card result-card--highlight">
-                <span className="result-label">Rank</span>
-                <span className="result-value">#{rank}</span>
-              </div>
-            )}
-          </div>
-          {submitting && <p className="submitting-msg">Saving result…</p>}
-          <div className="arena-actions">
-            <button className="btn-secondary" onClick={() => navigate(`/contests/${contest.id}`)}>
-              View Leaderboard
-            </button>
-            <button className="btn-secondary" onClick={() => navigate('/contests')}>
-              All Contests
+        {phase === 'ready' ? (
+          <div className="arena-ready">
+            <p>
+              Read the passage below, then press <strong>Start</strong> when ready.
+            </p>
+            <div className="arena-passage arena-passage--preview">{target}</div>
+            <button className="btn-start" onClick={startRound}>
+              Start
             </button>
           </div>
-        </div>
-      )}
-    </div>
+        ) : null}
+
+        {phase === 'running' ? (
+          <>
+            <div className="arena-stats-live">
+              <span>
+                WPM: <strong>{liveStats?.wpm ?? 0}</strong>
+              </span>
+              <span>
+                Accuracy: <strong>{liveStats?.accuracy.toFixed(1) ?? 0}%</strong>
+              </span>
+              <span>
+                Errors: <strong>{liveStats?.errors ?? 0}</strong>
+              </span>
+            </div>
+
+            <div className="arena-passage" aria-hidden="true">
+              {renderPassage()}
+            </div>
+
+            <textarea
+              ref={inputRef}
+              className="arena-input"
+              value={typed}
+              onChange={handleInput}
+              placeholder="Start typing here..."
+              rows={4}
+              spellCheck={false}
+              autoCorrect="off"
+              autoCapitalize="off"
+            />
+          </>
+        ) : null}
+
+        {phase === 'finished' ? (
+          <div className="arena-results">
+            <h2>Round Complete!</h2>
+            <div className="results-grid">
+              <div className="result-card">
+                <span className="result-label">WPM</span>
+                <span className="result-value">{finalWpm}</span>
+              </div>
+              <div className="result-card">
+                <span className="result-label">Accuracy</span>
+                <span className="result-value">{finalAccuracy.toFixed(1)}%</span>
+              </div>
+              <div className="result-card">
+                <span className="result-label">Errors</span>
+                <span className="result-value">{finalErrors}</span>
+              </div>
+              {score !== null ? (
+                <div className="result-card result-card--highlight">
+                  <span className="result-label">Score</span>
+                  <span className="result-value">{score}</span>
+                </div>
+              ) : null}
+              {rank !== null ? (
+                <div className="result-card result-card--highlight">
+                  <span className="result-label">Rank</span>
+                  <span className="result-value">#{rank}</span>
+                </div>
+              ) : null}
+            </div>
+            {submitting ? <p className="submitting-msg">Saving result...</p> : null}
+            <div className="arena-actions">
+              <button className="btn-secondary" onClick={() => navigate(`/contests/${contest.id}`)}>
+                View Leaderboard
+              </button>
+              <button className="btn-secondary" onClick={() => navigate('/contests')}>
+                All Contests
+              </button>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </AppShell>
   )
 }

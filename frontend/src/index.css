@@ -1,16 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
 :root {
-  --ink: #10201e;
-  --muted: #4a5f5c;
-  --paper: #fffdfa;
-  --panel: rgba(255, 255, 255, 0.78);
-  --line: rgba(16, 32, 30, 0.12);
-  --focus: #1f8f7a;
-  --action: #e46c31;
-  --action-dark: #ba4e1a;
-  --danger: #cf2c47;
-  --ring: 0 0 0 3px rgba(31, 143, 122, 0.2);
-  --font-sans: 'Manrope', 'Segoe UI', sans-serif;
-  --font-heading: 'Sora', 'Segoe UI', sans-serif;
+  --ink: #152533;
+  --muted: #4c6578;
+  --paper: #f7f5ee;
+  --panel: rgba(255, 255, 255, 0.82);
+  --line: rgba(21, 37, 51, 0.14);
+  --focus: #138f95;
+  --action: #cf4e2f;
+  --action-dark: #a4371d;
+  --danger: #bf2f3c;
+  --ok: #1f8655;
+  --ring: 0 0 0 3px rgba(19, 143, 149, 0.22);
+  --font-sans: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-heading: 'Chakra Petch', 'Segoe UI', sans-serif;
+  --radius-lg: 20px;
 }
 
 * {
@@ -22,9 +26,10 @@ body {
   font-family: var(--font-sans);
   color: var(--ink);
   background:
-    radial-gradient(circle at 0% 0%, #ffe4cc 0%, rgba(255, 228, 204, 0.2) 35%, transparent 60%),
-    radial-gradient(circle at 100% 100%, #cceee7 0%, rgba(204, 238, 231, 0.2) 30%, transparent 55%),
-    linear-gradient(150deg, #f8f2ea 0%, #eef6f4 100%);
+    radial-gradient(circle at 9% 14%, #f6d6c8 0%, rgba(246, 214, 200, 0.18) 40%, transparent 62%),
+    radial-gradient(circle at 92% 88%, #bde2e4 0%, rgba(189, 226, 228, 0.17) 38%, transparent 63%),
+    radial-gradient(circle at 50% 0%, #f2e7c8 0%, rgba(242, 231, 200, 0.2) 33%, transparent 58%),
+    linear-gradient(145deg, #f4efe2 0%, #e7f0ef 55%, #f4eee4 100%);
   min-height: 100vh;
 }
 
@@ -34,16 +39,22 @@ body {
 
 h1,
 h2,
+h3,
 p {
   margin: 0;
 }
 
 a {
   color: var(--focus);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 button,
 input {
+  font: inherit;
+}
+
+textarea,
+select {
   font: inherit;
 }

@@ -1,15 +1,22 @@
-export type ContestType = 'daily' | 'weekly' | 'monthly' | 'special'
-export type ContestStatus = 'draft' | 'published' | 'active' | 'completed'
+export type ContestType = 'daily' | 'weekly' | 'monthly' | 'special' | 'speed' | string
+export type ContestStatus =
+  | 'draft'
+  | 'published'
+  | 'active'
+  | 'finished'
+  | 'completed'
+  | 'cancelled'
+  | string
 
 export type Contest = {
   id: number
   title: string
   type: ContestType
   status: ContestStatus
-  text_content: string
-  duration_seconds: number
-  starts_at: string | null
-  ends_at: string | null
+  textContent: string
+  durationSeconds: number
+  startsAt: string | null
+  endsAt: string | null
   created_by: number | null
   created_at: string
   updated_at: string
@@ -37,7 +44,27 @@ export type PaginatedResponse<T> = {
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_BASE_URL as string | undefined)?.replace(/\/$/, '') ??
-  'http://127.0.0.1:8000/api'
+  'http://127.0.0.1:8001/api/v1'
+
+function normalizeContest(raw: any): Contest {
+  const textContent = String(raw?.text_content ?? raw?.typing_text?.content ?? '')
+  const startsAt = (raw?.start_time ?? raw?.starts_at ?? null) as string | null
+  const endsAt = (raw?.end_time ?? raw?.ends_at ?? null) as string | null
+
+  return {
+    id: Number(raw?.id ?? 0),
+    title: String(raw?.title ?? 'Untitled Contest'),
+    type: String(raw?.type ?? 'special'),
+    status: String(raw?.status ?? 'draft'),
+    textContent,
+    durationSeconds: Number(raw?.duration_seconds ?? 60),
+    startsAt,
+    endsAt,
+    created_by: raw?.created_by ?? null,
+    created_at: String(raw?.created_at ?? ''),
+    updated_at: String(raw?.updated_at ?? ''),
+  }
+}
 
 async function request<T>(
   path: string,
@@ -79,19 +106,35 @@ export function listContests(params?: {
   if (params?.type) query.set('type', params.type)
   if (params?.page) query.set('page', String(params.page))
   const qs = query.toString()
-  return request<PaginatedResponse<Contest>>(`/contests${qs ? `?${qs}` : ''}`)
+  return request<any>(`/contests${qs ? `?${qs}` : ''}`).then((payload) => {
+    const rows = Array.isArray(payload?.data) ? payload.data : []
+    return {
+      data: rows.map((row: any) => normalizeContest(row)),
+      total: Number(payload?.total ?? rows.length),
+      per_page: Number(payload?.per_page ?? rows.length),
+      current_page: Number(payload?.current_page ?? 1),
+      last_page: Number(payload?.last_page ?? 1),
+    }
+  })
 }
 
 export function getContest(id: number): Promise<Contest> {
-  return request<Contest>(`/contests/${id}`)
+  return request<any>(`/contests/${id}`).then((payload) => {
+    if (payload?.contest) {
+      return normalizeContest(payload.contest)
+    }
+
+    return normalizeContest(payload)
+  })
 }
 
 export function getContestLeaderboard(
   id: number,
 ): Promise<{ contest: Contest; leaderboard: ContestResult[] }> {
-  return request<{ contest: Contest; leaderboard: ContestResult[] }>(
-    `/contests/${id}/leaderboard`,
-  )
+  return request<any>(`/contests/${id}/leaderboard`).then((payload) => ({
+    contest: payload?.contest ? normalizeContest(payload.contest) : normalizeContest({ id }),
+    leaderboard: Array.isArray(payload?.leaderboard) ? payload.leaderboard : [],
+  }))
 }
 
 export function getGlobalLeaderboard(): Promise<ContestResult[]> {

@@ -14,7 +14,7 @@ type AuthResponse = {
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '') ??
-  'http://127.0.0.1:8000/api'
+  'http://127.0.0.1:8001/api/v1'
 
 const TOKEN_KEY = 'typing_contest_token'
 
@@ -77,12 +77,13 @@ async function request<T>(
 }
 
 export async function register(input: {
+  username: string
   name: string
   email: string
   password: string
   password_confirmation: string
 }): Promise<AuthResponse> {
-  return request<AuthResponse>('/register', {
+  return request<AuthResponse>('/auth/register', {
     method: 'POST',
     body: JSON.stringify(input),
   })
@@ -92,16 +93,16 @@ export async function login(input: {
   email: string
   password: string
 }): Promise<AuthResponse> {
-  return request<AuthResponse>('/login', {
+  return request<AuthResponse>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(input),
   })
 }
 
 export async function me(token: string): Promise<{ user: AuthUser }> {
-  return request<{ user: AuthUser }>('/me', { method: 'GET' }, token)
+  return request<{ user: AuthUser }>('/auth/me', { method: 'GET' }, token)
 }
 
 export async function logout(token: string): Promise<{ message: string }> {
-  return request<{ message: string }>('/logout', { method: 'POST' }, token)
+  return request<{ message: string }>('/auth/logout', { method: 'POST' }, token)
 }
