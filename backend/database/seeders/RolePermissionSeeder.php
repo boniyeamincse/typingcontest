@@ -2,49 +2,119 @@
 
 namespace Database\Seeders;
 
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()['cache']->forget('spatie.permission.cache');
 
-        // Create permissions
-        Permission::upsert([
-            ['name' => 'manage_contests', 'guard_name' => 'api'],
-            ['name' => 'manage_users', 'guard_name' => 'api'],
-            ['name' => 'manage_badges', 'guard_name' => 'api'],
-            ['name' => 'view_analytics', 'guard_name' => 'api'],
-            ['name' => 'manage_anti_cheat', 'guard_name' => 'api'],
-            ['name' => 'access_pro_features', 'guard_name' => 'api'],
-        ], ['name', 'guard_name']);
-
-        // Create roles
-        Role::upsert([
-            ['name' => 'admin', 'guard_name' => 'api'],
-            ['name' => 'pro_user', 'guard_name' => 'api'],
-            ['name' => 'free_user', 'guard_name' => 'api'],
-        ], ['name', 'guard_name']);
-
-        // Assign permissions to roles
-        $adminRole = Role::where('name', 'admin')->firstOrFail();
-        $adminRole->syncPermissions([
+        $permissions = [
+            'admin.dashboard.view',
+            'admin.users.manage',
+            'admin.contests.manage',
+            'admin.live.monitor',
+            'admin.content.manage',
+            'admin.subscriptions.manage',
+            'admin.payments.manage',
+            'admin.badges.manage',
+            'admin.leaderboard.manage',
+            'admin.reports.view',
+            'admin.security.manage',
+            'admin.support.manage',
+            'admin.cms.manage',
+            'admin.notifications.send',
+            'admin.system.monitor',
+            'admin.logs.view',
+            'admin.api.manage',
+            'admin.roles.manage',
             'manage_contests',
             'manage_users',
             'manage_badges',
             'view_analytics',
             'manage_anti_cheat',
-        ]);
-
-        $proRole = Role::where('name', 'pro_user')->firstOrFail();
-        $proRole->syncPermissions([
             'access_pro_features',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::findOrCreate($permission, 'api');
+        }
+
+        $roles = [
+            'super_admin',
+            'contest_admin',
+            'user_moderator',
+            'support_admin',
+            'content_manager',
+            'admin',
+            'pro_user',
+            'free_user',
+        ];
+
+        foreach ($roles as $role) {
+            Role::findOrCreate($role, 'api');
+        }
+
+        Role::findByName('super_admin', 'api')->syncPermissions($permissions);
+
+        Role::findByName('contest_admin', 'api')->syncPermissions([
+            'admin.dashboard.view',
+            'admin.contests.manage',
+            'admin.live.monitor',
+            'admin.subscriptions.manage',
+            'admin.payments.manage',
+            'admin.leaderboard.manage',
+            'admin.reports.view',
+            'admin.notifications.send',
+            'admin.system.monitor',
+            'admin.logs.view',
+            'admin.api.manage',
+            'manage_contests',
+            'view_analytics',
+            'manage_anti_cheat',
         ]);
 
-        // free_user intentionally has no elevated permissions
+        Role::findByName('user_moderator', 'api')->syncPermissions([
+            'admin.dashboard.view',
+            'admin.users.manage',
+            'admin.security.manage',
+            'admin.logs.view',
+            'manage_users',
+            'manage_anti_cheat',
+        ]);
+
+        Role::findByName('support_admin', 'api')->syncPermissions([
+            'admin.dashboard.view',
+            'admin.support.manage',
+            'admin.notifications.send',
+            'admin.reports.view',
+            'admin.logs.view',
+        ]);
+
+        Role::findByName('content_manager', 'api')->syncPermissions([
+            'admin.dashboard.view',
+            'admin.content.manage',
+            'admin.cms.manage',
+            'admin.notifications.send',
+            'admin.badges.manage',
+            'manage_badges',
+        ]);
+
+        Role::findByName('admin', 'api')->syncPermissions([
+            'manage_contests',
+            'manage_users',
+            'manage_badges',
+            'view_analytics',
+            'manage_anti_cheat',
+            'admin.reports.view',
+            'admin.payments.manage',
+            'admin.subscriptions.manage',
+        ]);
+
+        Role::findByName('pro_user', 'api')->syncPermissions(['access_pro_features']);
+        Role::findByName('free_user', 'api')->syncPermissions([]);
     }
 }

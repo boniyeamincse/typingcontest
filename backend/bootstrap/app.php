@@ -5,6 +5,7 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\EnsureEmailIsVerifiedApi;
 use App\Http\Middleware\CheckSubscription;
+use App\Http\Middleware\EnsureAdminModuleAccess;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => RoleOrPermissionMiddleware::class,
             'verified.api' => EnsureEmailIsVerifiedApi::class,
             'subscription' => CheckSubscription::class,
+            'admin.module' => EnsureAdminModuleAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

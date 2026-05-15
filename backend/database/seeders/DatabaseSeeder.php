@@ -37,8 +37,8 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        if (! $admin->hasRole('admin')) {
-            $admin->assignRole('admin');
+        if (! $admin->hasRole('super_admin')) {
+            $admin->syncRoles(['super_admin', 'admin']);
         }
 
         // Create test users (up to 10 more)

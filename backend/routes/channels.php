@@ -57,3 +57,19 @@ Broadcast::channel('leaderboard.country.{countryCode}', function ($user, string 
 Broadcast::channel('subscription.user.{userId}', function ($user, int $userId): bool {
     return (int) $user->id === $userId;
 });
+
+Broadcast::channel('admin.notifications', function ($user): bool {
+    return $user->hasAnyRole(['super_admin', 'contest_admin', 'user_moderator', 'support_admin', 'content_manager', 'admin']);
+});
+
+Broadcast::channel('admin.live.contest.{contestId}', function ($user, int $contestId): bool {
+    return $user->hasAnyRole(['super_admin', 'contest_admin', 'admin']);
+});
+
+Broadcast::channel('admin.live.leaderboard.{contestId}', function ($user, int $contestId): bool {
+    return $user->hasAnyRole(['super_admin', 'contest_admin', 'admin']);
+});
+
+Broadcast::channel('admin.security.cheating', function ($user): bool {
+    return $user->hasAnyRole(['super_admin', 'user_moderator', 'admin']);
+});

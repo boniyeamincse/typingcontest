@@ -2,6 +2,12 @@
 
 namespace App\Providers;
 
+use App\Repositories\Admin\AdminContestRepositoryInterface;
+use App\Repositories\Admin\AdminDashboardRepositoryInterface;
+use App\Repositories\Admin\AdminUserRepositoryInterface;
+use App\Repositories\Admin\EloquentAdminContestRepository;
+use App\Repositories\Admin\EloquentAdminDashboardRepository;
+use App\Repositories\Admin\EloquentAdminUserRepository;
 use App\Repositories\Auth\EloquentLoginActivityRepository;
 use App\Repositories\Auth\EloquentSocialAccountRepository;
 use App\Repositories\Auth\EloquentUserRepository;
@@ -22,14 +28,14 @@ use App\Repositories\Profile\EloquentProfileRepository;
 use App\Repositories\Profile\EloquentStatisticRepository;
 use App\Repositories\Profile\ProfileRepositoryInterface;
 use App\Repositories\Profile\StatisticRepositoryInterface;
+use App\Repositories\Subscription\EloquentSubscriptionRepository;
+use App\Repositories\Subscription\SubscriptionRepositoryInterface;
 use App\Repositories\Typing\EloquentTypingInputRepository;
 use App\Repositories\Typing\EloquentTypingResultRepository;
 use App\Repositories\Typing\EloquentTypingSessionRepository;
 use App\Repositories\Typing\TypingInputRepositoryInterface;
 use App\Repositories\Typing\TypingResultRepositoryInterface;
 use App\Repositories\Typing\TypingSessionRepositoryInterface;
-use App\Repositories\Subscription\EloquentSubscriptionRepository;
-use App\Repositories\Subscription\SubscriptionRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
@@ -66,6 +72,11 @@ class AppServiceProvider extends ServiceProvider
         // Subscription + Payment modules
         $this->app->bind(SubscriptionRepositoryInterface::class, EloquentSubscriptionRepository::class);
         $this->app->bind(PaymentRepositoryInterface::class, EloquentPaymentRepository::class);
+
+        // Admin modules
+        $this->app->bind(AdminDashboardRepositoryInterface::class, EloquentAdminDashboardRepository::class);
+        $this->app->bind(AdminUserRepositoryInterface::class, EloquentAdminUserRepository::class);
+        $this->app->bind(AdminContestRepositoryInterface::class, EloquentAdminContestRepository::class);
     }
 
     /**
@@ -88,6 +99,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('payment-webhook', function (Request $request) {
             return [
                 Limit::perMinute(120)->by($request->ip()),
+            ];
+        });
+
+        RateLimiter::for('admin-api', function (Request $request) {
+            return [
+                Limit::perMinute(120)->by($request->user()?->id ?: $request->ip()),
             ];
         });
     }

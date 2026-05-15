@@ -1,5 +1,22 @@
 <?php
 
+use App\Http\Controllers\API\Admin\AdminAuthController;
+use App\Http\Controllers\API\Admin\AdminBadgeRewardController;
+use App\Http\Controllers\API\Admin\AdminCmsController;
+use App\Http\Controllers\API\Admin\AdminContestController;
+use App\Http\Controllers\API\Admin\AdminContentController;
+use App\Http\Controllers\API\Admin\AdminDashboardController;
+use App\Http\Controllers\API\Admin\AdminLeaderboardController;
+use App\Http\Controllers\API\Admin\AdminLiveMonitoringController;
+use App\Http\Controllers\API\Admin\AdminNotificationController;
+use App\Http\Controllers\API\Admin\AdminPaymentController as DashboardAdminPaymentController;
+use App\Http\Controllers\API\Admin\AdminReportController;
+use App\Http\Controllers\API\Admin\AdminRoleController;
+use App\Http\Controllers\API\Admin\AdminSecurityController;
+use App\Http\Controllers\API\Admin\AdminSubscriptionController as DashboardAdminSubscriptionController;
+use App\Http\Controllers\API\Admin\AdminSupportController;
+use App\Http\Controllers\API\Admin\AdminSystemController;
+use App\Http\Controllers\API\Admin\AdminUserController;
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
 use App\Http\Controllers\API\Leaderboard\LeaderboardController;
@@ -23,6 +40,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/social/google', [AuthController::class, 'socialGoogle'])->middleware('throttle:auth-general');
         Route::post('/social/github', [AuthController::class, 'socialGithub'])->middleware('throttle:auth-general');
     });
+
+    Route::post('/admin/login', [AdminAuthController::class, 'login'])->middleware('throttle:auth-login');
 
     // ── Public profile ───────────────────────────────────────────────────────────
     // NOTE: This wildcard route must be declared AFTER all specific /profile/* routes
@@ -108,7 +127,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/invoice/{paymentIntentId}/download', [PaymentController::class, 'downloadInvoice']);
         });
 
-        // Admin contest management
+        // Existing admin contest + subscription/payment controls
         Route::middleware('role:admin')->group(function () {
             Route::post('/admin/contests', [ContestController::class, 'store']);
             Route::put('/admin/contests/{contest}', [ContestController::class, 'update']);
@@ -120,20 +139,92 @@ Route::prefix('v1')->group(function () {
             Route::post('/admin/contests/{contest}/resume', [ContestController::class, 'resume']);
             Route::post('/admin/contests/{contest}/cancel', [ContestController::class, 'cancel']);
 
-            // Admin coupon management
             Route::get('/admin/coupons', [AdminSubscriptionController::class, 'coupons']);
             Route::post('/admin/coupons', [AdminSubscriptionController::class, 'createCoupon'])->middleware('throttle:30,1');
             Route::put('/admin/coupons/{coupon}', [AdminSubscriptionController::class, 'updateCoupon'])->middleware('throttle:30,1');
             Route::post('/admin/coupons/{coupon}/toggle', [AdminSubscriptionController::class, 'toggleCoupon'])->middleware('throttle:30,1');
 
-            // Admin subscription override
             Route::post('/admin/subscriptions/override', [AdminSubscriptionController::class, 'override'])->middleware('throttle:20,1');
-
-            // Admin refund handling
             Route::get('/admin/reports/subscriptions-payments', [AdminPaymentController::class, 'report']);
             Route::get('/admin/reports/subscriptions-payments/export', [AdminPaymentController::class, 'export']);
             Route::post('/admin/payments/{paymentIntentId}/refund', [AdminPaymentController::class, 'refund'])->middleware('throttle:20,1');
         });
+
+        // New production admin dashboard APIs
+        Route::prefix('admin')
+            ->middleware(['throttle:admin-api', 'role_or_permission:super_admin|contest_admin|user_moderator|support_admin|content_manager|admin'])
+            ->group(function () {
+                Route::post('/logout', [AdminAuthController::class, 'logout']);
+                Route::get('/dashboard/overview', [AdminDashboardController::class, 'overview']);
+
+                Route::get('/users', [AdminUserController::class, 'index'])->middleware('admin.module:users');
+                Route::post('/users/ban', [AdminUserController::class, 'ban'])->middleware('admin.module:users');
+                Route::post('/users/unban', [AdminUserController::class, 'unban'])->middleware('admin.module:users');
+                Route::post('/users/suspend', [AdminUserController::class, 'suspend'])->middleware('admin.module:users');
+                Route::post('/users/reset-password', [AdminUserController::class, 'resetPassword'])->middleware('admin.module:users');
+                Route::get('/users/suspicious', [AdminUserController::class, 'suspicious'])->middleware('admin.module:users');
+
+                Route::get('/contests', [AdminContestController::class, 'index'])->middleware('admin.module:contests');
+                Route::post('/contests/{contest}/stop', [AdminContestController::class, 'stop'])->middleware('admin.module:contests');
+                Route::post('/contests/{contest}/clone', [AdminContestController::class, 'cloneContest'])->middleware('admin.module:contests');
+                Route::get('/contests/{contest}/analytics', [AdminContestController::class, 'analytics'])->middleware('admin.module:contests');
+
+                Route::get('/live/contests/{contestId}', [AdminLiveMonitoringController::class, 'show'])->middleware('admin.module:contests');
+                Route::post('/live/contests/{contestId}/force-stop', [AdminLiveMonitoringController::class, 'forceStop'])->middleware('admin.module:contests');
+
+                Route::get('/content/paragraphs', [AdminContentController::class, 'index'])->middleware('admin.module:content');
+                Route::post('/content/paragraphs', [AdminContentController::class, 'store'])->middleware('admin.module:content');
+                Route::put('/content/paragraphs/{typingText}', [AdminContentController::class, 'update'])->middleware('admin.module:content');
+                Route::delete('/content/paragraphs/{typingText}', [AdminContentController::class, 'destroy'])->middleware('admin.module:content');
+
+                Route::get('/subscriptions', [DashboardAdminSubscriptionController::class, 'index'])->middleware('admin.module:subscriptions');
+                Route::get('/subscriptions/plans', [DashboardAdminSubscriptionController::class, 'plans'])->middleware('admin.module:subscriptions');
+                Route::post('/subscriptions/change-plan', [DashboardAdminSubscriptionController::class, 'upgradeDowngrade'])->middleware('admin.module:subscriptions');
+                Route::post('/subscriptions/cancel', [DashboardAdminSubscriptionController::class, 'cancel'])->middleware('admin.module:subscriptions');
+
+                Route::get('/payments', [DashboardAdminPaymentController::class, 'index'])->middleware('admin.module:payments');
+                Route::post('/payments/{payment}/verify', [DashboardAdminPaymentController::class, 'verify'])->middleware('admin.module:payments');
+                Route::get('/payments/{payment}/fraud-check', [DashboardAdminPaymentController::class, 'fraudCheck'])->middleware('admin.module:payments');
+
+                Route::get('/badges', [AdminBadgeRewardController::class, 'index'])->middleware('admin.module:content');
+                Route::post('/badges', [AdminBadgeRewardController::class, 'store'])->middleware('admin.module:content');
+                Route::post('/badges/assign', [AdminBadgeRewardController::class, 'assign'])->middleware('admin.module:content');
+                Route::post('/badges/xp-rule', [AdminBadgeRewardController::class, 'xpRule'])->middleware('admin.module:content');
+
+                Route::post('/leaderboard/reset', [AdminLeaderboardController::class, 'reset'])->middleware('admin.module:leaderboard');
+                Route::post('/leaderboard/recalculate', [AdminLeaderboardController::class, 'recalculate'])->middleware('admin.module:leaderboard');
+                Route::post('/leaderboard/remove-fake', [AdminLeaderboardController::class, 'removeFake'])->middleware('admin.module:leaderboard');
+                Route::post('/leaderboard/pin-top', [AdminLeaderboardController::class, 'pinTop'])->middleware('admin.module:leaderboard');
+                Route::get('/leaderboard/export', [AdminLeaderboardController::class, 'export'])->middleware('admin.module:leaderboard');
+
+                Route::get('/reports', [AdminReportController::class, 'index'])->middleware('admin.module:reports');
+                Route::post('/reports/queue', [AdminReportController::class, 'queue'])->middleware('admin.module:reports');
+
+                Route::get('/security/cheating-users', [AdminSecurityController::class, 'cheatingUsers'])->middleware('admin.module:security');
+                Route::post('/security/blocks', [AdminSecurityController::class, 'block'])->middleware('admin.module:security');
+                Route::get('/security/suspicious-logins', [AdminSecurityController::class, 'suspiciousLogins'])->middleware('admin.module:security');
+                Route::get('/security/rate-limits', [AdminSecurityController::class, 'rateLimits'])->middleware('admin.module:security');
+
+                Route::get('/support/tickets', [AdminSupportController::class, 'index'])->middleware('admin.module:support');
+                Route::post('/support/tickets', [AdminSupportController::class, 'store'])->middleware('admin.module:support');
+                Route::post('/support/tickets/{ticket}/respond', [AdminSupportController::class, 'respond'])->middleware('admin.module:support');
+                Route::post('/support/tickets/{ticket}/close', [AdminSupportController::class, 'close'])->middleware('admin.module:support');
+                Route::post('/support/tickets/{ticket}/escalate', [AdminSupportController::class, 'escalate'])->middleware('admin.module:support');
+
+                Route::get('/cms/pages', [AdminCmsController::class, 'pages'])->middleware('admin.module:content');
+                Route::post('/cms/pages', [AdminCmsController::class, 'savePage'])->middleware('admin.module:content');
+                Route::get('/cms/banners', [AdminCmsController::class, 'banners'])->middleware('admin.module:content');
+                Route::post('/cms/banners', [AdminCmsController::class, 'saveBanner'])->middleware('admin.module:content');
+
+                Route::post('/notifications/send', [AdminNotificationController::class, 'send'])->middleware('admin.module:notifications');
+
+                Route::get('/system/monitoring', [AdminSystemController::class, 'monitoring'])->middleware('admin.module:system');
+                Route::get('/activity-logs', [AdminSystemController::class, 'activityLogs'])->middleware('admin.module:system');
+                Route::get('/api/logs', [AdminSystemController::class, 'apiLogs'])->middleware('admin.module:system');
+
+                Route::get('/roles', [AdminRoleController::class, 'index'])->middleware('admin.module:roles');
+                Route::post('/roles/assign', [AdminRoleController::class, 'assign'])->middleware('admin.module:roles');
+            });
     });
 
     // ── Public wildcard profile (must be last to avoid shadowing /profile/* routes) ──

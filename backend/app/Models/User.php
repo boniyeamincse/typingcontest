@@ -18,6 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
     'name', 'username', 'email', 'password', 'avatar', 'country',
     'plan_type', 'subscription_status', 'subscription_end_date',
     'xp_points', 'global_rank', 'total_wpm', 'accuracy_avg', 'is_banned',
+    'banned_reason', 'suspended_until',
     'last_login_at', 'last_login_ip', 'last_login_user_agent',
 ])]
 #[Hidden(['password', 'remember_token'])]
@@ -43,6 +44,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'total_wpm' => 'integer',
             'accuracy_avg' => 'decimal:2',
             'is_banned' => 'boolean',
+            'suspended_until' => 'datetime',
             'last_login_at' => 'datetime',
         ];
     }
