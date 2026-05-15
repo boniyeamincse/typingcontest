@@ -53,3 +53,7 @@ Broadcast::channel('leaderboard.contest.{contestId}', function ($user, int $cont
 Broadcast::channel('leaderboard.country.{countryCode}', function ($user, string $countryCode): bool {
     return strlen($countryCode) === 2;
 });
+
+Broadcast::channel('subscription.user.{userId}', function ($user, int $userId): bool {
+    return (int) $user->id === $userId;
+});

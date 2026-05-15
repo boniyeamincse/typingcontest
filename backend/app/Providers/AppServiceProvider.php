@@ -14,6 +14,8 @@ use App\Repositories\Contest\EloquentParticipantRepository;
 use App\Repositories\Contest\ParticipantRepositoryInterface;
 use App\Repositories\Leaderboard\EloquentLeaderboardRepository;
 use App\Repositories\Leaderboard\LeaderboardRepositoryInterface;
+use App\Repositories\Payment\EloquentPaymentRepository;
+use App\Repositories\Payment\PaymentRepositoryInterface;
 use App\Repositories\Profile\ActivityRepositoryInterface;
 use App\Repositories\Profile\EloquentActivityRepository;
 use App\Repositories\Profile\EloquentProfileRepository;
@@ -26,6 +28,8 @@ use App\Repositories\Typing\EloquentTypingSessionRepository;
 use App\Repositories\Typing\TypingInputRepositoryInterface;
 use App\Repositories\Typing\TypingResultRepositoryInterface;
 use App\Repositories\Typing\TypingSessionRepositoryInterface;
+use App\Repositories\Subscription\EloquentSubscriptionRepository;
+use App\Repositories\Subscription\SubscriptionRepositoryInterface;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Http\Request;
@@ -58,6 +62,10 @@ class AppServiceProvider extends ServiceProvider
 
         // Leaderboard module
         $this->app->bind(LeaderboardRepositoryInterface::class, EloquentLeaderboardRepository::class);
+
+        // Subscription + Payment modules
+        $this->app->bind(SubscriptionRepositoryInterface::class, EloquentSubscriptionRepository::class);
+        $this->app->bind(PaymentRepositoryInterface::class, EloquentPaymentRepository::class);
     }
 
     /**
@@ -74,6 +82,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('auth-general', function (Request $request) {
             return [
                 Limit::perMinute(30)->by($request->ip()),
+            ];
+        });
+
+        RateLimiter::for('payment-webhook', function (Request $request) {
+            return [
+                Limit::perMinute(120)->by($request->ip()),
             ];
         });
     }

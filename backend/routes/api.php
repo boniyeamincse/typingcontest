@@ -3,7 +3,10 @@
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
 use App\Http\Controllers\API\Leaderboard\LeaderboardController;
+use App\Http\Controllers\API\Payment\PaymentController;
 use App\Http\Controllers\API\Profile\ProfileController;
+use App\Http\Controllers\API\Subscription\FeatureAccessController;
+use App\Http\Controllers\API\Subscription\SubscriptionController;
 use App\Http\Controllers\API\Typing\TypingController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +38,12 @@ Route::prefix('v1')->group(function () {
     Route::get('/leaderboard/country/{countryCode}', [LeaderboardController::class, 'country']);
     Route::get('/leaderboard/global', [LeaderboardController::class, 'global']);
     Route::get('/leaderboard/contest/{contest}', [LeaderboardController::class, 'contest']);
+
+    // Subscription plans
+    Route::get('/plans', [SubscriptionController::class, 'plans']);
+
+    // Payment webhook (public, signed)
+    Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->middleware('throttle:payment-webhook');
 
     // ── Authenticated ─────────────────────────────────────────────────────────────
     Route::middleware(['auth:api', 'verified.api'])->group(function () {
@@ -70,6 +79,31 @@ Route::prefix('v1')->group(function () {
             Route::get('/status/{session_id}', [TypingController::class, 'status']);
             Route::get('/result/{id}', [TypingController::class, 'result']);
             Route::get('/history', [TypingController::class, 'history']);
+        });
+
+        // Subscription module
+        Route::prefix('subscription')->group(function () {
+            Route::post('/subscribe', [SubscriptionController::class, 'subscribe'])->middleware('throttle:10,1');
+            Route::post('/upgrade', [SubscriptionController::class, 'upgrade'])->middleware('throttle:10,1');
+            Route::get('/current', [SubscriptionController::class, 'current']);
+            Route::post('/cancel', [SubscriptionController::class, 'cancel'])->middleware('throttle:10,1');
+        });
+
+        // Feature access control examples
+        Route::prefix('features')->group(function () {
+            Route::get('/contests', [FeatureAccessController::class, 'contests'])->middleware('subscription:contest');
+            Route::get('/analytics', [FeatureAccessController::class, 'analytics'])->middleware('subscription:analytics');
+            Route::get('/multiplayer', [FeatureAccessController::class, 'multiplayer'])->middleware('subscription:multiplayer');
+            Route::get('/ai-coach', [FeatureAccessController::class, 'aiCoach'])->middleware('subscription:ai');
+            Route::get('/premium-leaderboard', [FeatureAccessController::class, 'premiumLeaderboard'])->middleware('subscription:premium_leaderboard');
+        });
+
+        // Payment module
+        Route::prefix('payment')->group(function () {
+            Route::post('/create', [PaymentController::class, 'create'])->middleware('throttle:20,1');
+            Route::post('/verify', [PaymentController::class, 'verify'])->middleware('throttle:20,1');
+            Route::get('/history', [PaymentController::class, 'history']);
+            Route::get('/invoice/{paymentIntentId}/download', [PaymentController::class, 'downloadInvoice']);
         });
 
         // Admin contest management
