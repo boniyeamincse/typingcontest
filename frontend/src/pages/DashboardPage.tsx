@@ -38,8 +38,11 @@ export function DashboardPage() {
               <Link to="/contests" className="btn-primary" style={{ padding: '1rem 2rem' }}>
                 Join Active Contest
               </Link>
-              <Link to="/profile/history" className="btn-secondary">
-                View History
+              <Link to="/leaderboard" className="btn-secondary">
+                Leaderboard
+              </Link>
+              <Link to="/profile" className="btn-secondary">
+                My Profile
               </Link>
             </div>
           </section>

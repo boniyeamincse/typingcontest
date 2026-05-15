@@ -4,12 +4,15 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from './auth/AuthContext'
 import { AdminAuthProvider, useAdminAuth } from './admin/AdminAuthContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { LandingPage } from './pages/LandingPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import ContestsPage from './pages/ContestsPage'
 import ContestDetailPage from './pages/ContestDetailPage'
 import TypingArenaPage from './pages/TypingArenaPage'
+import ProfilePage from './pages/ProfilePage'
+import LeaderboardPage from './pages/LeaderboardPage'
 // Admin pages
 import AdminLoginPage from './pages/AdminLoginPage'
 import AdminOverviewPage from './pages/admin/AdminOverviewPage'
@@ -52,7 +55,7 @@ function App() {
         <Toaster position="top-right" toastOptions={{ duration: 3500 }} />
         <Routes>
           {/* ── Public ───────────────────────────────────────────────── */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
 
@@ -61,6 +64,8 @@ function App() {
           <Route path="/contests" element={<ContestsPage />} />
           <Route path="/contests/:id" element={<ContestDetailPage />} />
           <Route path="/contests/:id/play" element={<ProtectedRoute><TypingArenaPage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
 
           {/* ── Admin auth ───────────────────────────────────────────── */}
           <Route path="/admin/login" element={<AdminLoginPage />} />

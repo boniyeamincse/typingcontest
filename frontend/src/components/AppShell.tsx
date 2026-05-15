@@ -32,7 +32,9 @@ export function AppShell({ title, subtitle, children, actions }: AppShellProps) 
 
         <nav className="shell-nav" aria-label="Primary">
           <NavItem to="/contests" label="Contests" />
+          <NavItem to="/leaderboard" label="Leaderboard" />
           {isAuthenticated ? <NavItem to="/dashboard" label="Dashboard" /> : null}
+          {isAuthenticated ? <NavItem to="/profile" label="Profile" /> : null}
           {isAuthenticated ? <NavItem to="/admin/dashboard" label="Admin" /> : null}
           {!isAuthenticated ? <NavItem to="/login" label="Login" /> : null}
           {!isAuthenticated ? <NavItem to="/register" label="Register" /> : null}

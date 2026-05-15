@@ -18,7 +18,7 @@ export function setAdminToken(t: string | null): void {
 
 // ── Generic fetch helper ────────────────────────────────────────────────────
 
-async function adminFetch<T>(
+export async function adminFetch<T>(
   method: string,
   path: string,
   body?: unknown,
@@ -297,12 +297,113 @@ export const fetchSubscriptions = (params?: Record<string, string | number>) =>
 export const fetchBadges = () =>
   get<ApiResponse<unknown[]>>('/admin/badges')
 
-// ── Content Items ─────────────────────────────────────────────────────────────
+// ── Content Paragraphs (Typing Texts) ─────────────────────────────────────────
 
-export const fetchContentItems = (params?: Record<string, string | number>) =>
-  get<ApiResponse<unknown[]>>(
-    '/admin/content?' + new URLSearchParams((params ?? {}) as Record<string, string>).toString(),
+export type ContentParagraph = {
+  id: number
+  content: string
+  language: string
+  word_count: number
+  difficulty: string
+  source_label: string | null
+  created_at: string
+}
+
+export const fetchContentParagraphs = (params?: Record<string, string | number>) =>
+  get<ApiResponse<ContentParagraph[]>>(
+    '/admin/content/paragraphs?' + new URLSearchParams((params ?? {}) as Record<string, string>).toString(),
   )
+
+export const createContentParagraph = (data: {
+  content: string
+  language?: string
+  difficulty?: string
+  source_label?: string
+}) => post<ApiResponse<ContentParagraph>>('/admin/content/paragraphs', data)
+
+export const updateContentParagraph = (id: number, data: Partial<ContentParagraph>) =>
+  adminFetch<ApiResponse<ContentParagraph>>('PUT', `/admin/content/paragraphs/${id}`, data)
+
+export const deleteContentParagraph = (id: number) =>
+  adminFetch<ApiResponse<null>>('DELETE', `/admin/content/paragraphs/${id}`)
+
+// Keep legacy alias for backward compatibility
+export const fetchContentItems = fetchContentParagraphs
+
+// ── Subscriptions (extended) ──────────────────────────────────────────────────
+
+export const fetchSubscriptionPlans = () =>
+  get<ApiResponse<unknown[]>>('/admin/subscriptions/plans')
+
+export const changeSubscriptionPlan = (userId: number, plan: string) =>
+  post<ApiResponse<unknown>>('/admin/subscriptions/change-plan', { user_id: userId, plan })
+
+export const cancelAdminSubscription = (userId: number) =>
+  post<ApiResponse<unknown>>('/admin/subscriptions/cancel', { user_id: userId })
+
+// ── Payments (extended) ───────────────────────────────────────────────────────
+
+export const verifyAdminPayment = (paymentId: number) =>
+  post<ApiResponse<Payment>>(`/admin/payments/${paymentId}/verify`)
+
+export const checkPaymentFraud = (paymentId: number) =>
+  get<ApiResponse<unknown>>(`/admin/payments/${paymentId}/fraud-check`)
+
+// ── Leaderboard (extended) ────────────────────────────────────────────────────
+
+export const exportLeaderboard = () =>
+  get<ApiResponse<unknown>>('/admin/leaderboard/export')
+
+export const removeFakeLeaderboardEntries = () =>
+  post<ApiResponse<unknown>>('/admin/leaderboard/remove-fake')
+
+export const pinTopLeaderboard = (userId: number) =>
+  post<ApiResponse<unknown>>('/admin/leaderboard/pin-top', { user_id: userId })
+
+// ── Security (extended) ───────────────────────────────────────────────────────
+
+export const fetchRateLimits = () =>
+  get<ApiResponse<unknown[]>>('/admin/security/rate-limits')
+
+// ── Support (extended) ────────────────────────────────────────────────────────
+
+export const createSupportTicket = (subject: string, message: string, userId?: number) =>
+  post<ApiResponse<SupportTicket>>('/admin/support/tickets', { subject, message, user_id: userId })
+
+// ── API Logs ──────────────────────────────────────────────────────────────────
+
+export const fetchAdminApiLogs = () =>
+  get<ApiResponse<unknown[]>>('/admin/api/logs')
+
+// ── CMS (extended) ────────────────────────────────────────────────────────────
+
+export const saveCmsBanner = (position: string, content: string, isActive: boolean) =>
+  post<ApiResponse<unknown>>('/admin/cms/banners', { position, content, is_active: isActive })
+
+// ── Badges (extended) ─────────────────────────────────────────────────────────
+
+export const createBadge = (data: {
+  name: string
+  slug: string
+  description: string
+  requirement_type: string
+  requirement_value: number
+  is_premium?: boolean
+}) => post<ApiResponse<unknown>>('/admin/badges', data)
+
+export const assignBadge = (userId: number, badgeId: number) =>
+  post<ApiResponse<unknown>>('/admin/badges/assign', { user_id: userId, badge_id: badgeId })
+
+export const createXpRule = (event: string, xpReward: number) =>
+  post<ApiResponse<unknown>>('/admin/badges/xp-rule', { event, xp_reward: xpReward })
+
+// ── Live Monitoring (per-contest) ─────────────────────────────────────────────
+
+export const fetchLiveContest = (contestId: number) =>
+  get<ApiResponse<unknown>>(`/admin/live/contests/${contestId}`)
+
+export const forceStopLiveContest = (contestId: number) =>
+  post<ApiResponse<unknown>>(`/admin/live/contests/${contestId}/force-stop`)
 
 // -- Remaining module placeholders -------------------------------------------
 
