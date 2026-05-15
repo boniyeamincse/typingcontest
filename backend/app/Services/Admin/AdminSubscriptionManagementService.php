@@ -19,7 +19,7 @@ class AdminSubscriptionManagementService
 
     public function managePlans(): array
     {
-        return SubscriptionPlan::query()->orderBy('sort_order')->get()->all();
+        return SubscriptionPlan::query()->orderBy('id')->get()->all();
     }
 
     public function upgradeDowngrade(User $user, string $planType): User

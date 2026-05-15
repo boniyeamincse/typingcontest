@@ -29,8 +29,7 @@ class AdminSecurityService
     public function suspiciousLogins()
     {
         return LoginActivity::query()
-            ->where('successful', false)
-            ->orWhere('ip_address', 'like', '10.%')
+            ->where('status', '!=', 'success')
             ->latest('id')
             ->paginate(30);
     }

@@ -22,7 +22,7 @@ class EloquentAdminDashboardRepository implements AdminDashboardRepositoryInterf
                 'pro_users' => User::whereIn('plan_type', ['pro', 'vip'])->count(),
                 'revenue' => (float) Payment::where('status', 'paid')->sum('final_amount'),
                 'active_contests' => Contest::where('status', Contest::STATUS_ACTIVE)->count(),
-                'live_players' => DB::table('contest_sessions')->whereNull('finished_at')->count(),
+                'live_players' => DB::table('contest_sessions')->whereIn('status', ['waiting', 'typing'])->count(),
                 'today_new_users' => User::where('created_at', '>=', $today)->count(),
             ];
         });
