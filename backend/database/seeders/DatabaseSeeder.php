@@ -24,6 +24,9 @@ class DatabaseSeeder extends Seeder
         // Create typing texts
         $this->call(TypingTextSeeder::class);
 
+        // Create predictable test accounts
+        $this->call(TestUserSeeder::class);
+
         // Create test admin user if not exists
         $admin = User::firstOrCreate(
             ['email' => 'admin@example.com'],
