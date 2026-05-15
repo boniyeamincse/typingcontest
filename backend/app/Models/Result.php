@@ -10,7 +10,7 @@ class Result extends Model
 {
     use HasFactory;
 
-    protected $table = 'results';
+    protected $table = 'contest_participants';
 
     protected $fillable = [
         'user_id',
@@ -69,11 +69,5 @@ class Result extends Model
                 $model->score = $model->calculateScore();
             }
         });
-    }
-}
-
-    public function contest(): BelongsTo
-    {
-        return $this->belongsTo(Contest::class);
     }
 }

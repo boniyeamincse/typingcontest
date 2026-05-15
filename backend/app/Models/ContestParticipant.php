@@ -8,5 +8,5 @@ namespace App\Models;
  */
 class ContestParticipant extends Result
 {
-    protected $table = 'results';
+    protected $table = 'contest_participants';
 }

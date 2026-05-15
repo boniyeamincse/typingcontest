@@ -41,6 +41,12 @@ return new class extends Migration
                 if (!Schema::hasColumn('contests', 'typing_text_id')) {
                     $table->unsignedBigInteger('typing_text_id')->nullable()->after('prize_description');
                 }
+                if (!Schema::hasColumn('contests', 'start_time')) {
+                    $table->timestamp('start_time')->nullable()->after('ends_at');
+                }
+                if (!Schema::hasColumn('contests', 'end_time')) {
+                    $table->timestamp('end_time')->nullable()->after('start_time');
+                }
             });
         }
     }
