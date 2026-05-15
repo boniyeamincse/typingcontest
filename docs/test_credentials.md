@@ -5,64 +5,79 @@
 ## API Base URL
 
 ```
-http://127.0.0.1:8001/api
+http://127.0.0.1:8001/api/v1
 ```
+
+**Note**: All endpoints require the `/api/v1` prefix (e.g., `/api/v1/auth/login`)
 
 ---
 
 ## Test Accounts
 
-| Role       | Name         | Email                        | Password    |
-|------------|--------------|------------------------------|-------------|
-| Test User  | Test User    | test@typingcontest.dev       | Password123! |
-| Admin Demo | Admin Demo   | admin@typingcontest.dev      | Admin1234!  |
+| Role      | Name           | Email                      | Password |
+|-----------|----------------|----------------------------|----------|
+| Admin     | Admin User     | admin@example.com          | password |
+| Test User | Robert Schaefer| rschaefer@example.com      | password |
+| Test User | User 3         | user3@example.com          | password |
+| Test User | User 4-11      | user{N}@example.com        | password |
 
 ---
 
 ## Auth Endpoints Quick Reference
 
-| Method | Endpoint        | Auth Required | Description              |
-|--------|-----------------|---------------|--------------------------|
-| POST   | `/api/register` | No            | Create account + token   |
-| POST   | `/api/login`    | No            | Login + get token        |
-| GET    | `/api/me`       | Bearer token  | Fetch current user       |
-| POST   | `/api/logout`   | Bearer token  | Invalidate current token |
+| Method | Endpoint              | Auth Required | Description              |
+|--------|---------------------- |---------------|--------------------------|
+| POST   | `/v1/auth/register` | No            | Create account + token   |
+| POST   | `/v1/auth/login`    | No            | Login + get token        |
+| GET    | `/v1/auth/me`       | Bearer token  | Fetch current user       |
+| POST   | `/v1/auth/logout`   | Bearer token  | Invalidate current token |
 
 ---
 
-## Smoke Test Results — 2026-05-14
+## Smoke Test Results — 2026-05-15
 
-| Test                     | HTTP | Result |
-|--------------------------|------|--------|
-| POST /login              | 200  | ✅ PASS |
-| GET /me                  | 200  | ✅ PASS |
-| POST /logout             | 200  | ✅ PASS |
-| GET /me (after logout)   | 401  | ✅ PASS |
-| GET /contests (public)   | 200  | ✅ PASS |
+| Test                              | HTTP | Result |
+|-----------------------------------|------|--------|
+| POST /v1/auth/login               | 200  | ✅ PASS |
+| GET /v1/auth/me                   | 200  | ✅ PASS |
+| POST /v1/auth/logout              | 200  | ✅ PASS |
+| GET /v1/contests (public)         | 200  | ✅ PASS |
+| POST /v1/admin/contests (create)  | 201  | ✅ PASS |
+| POST /v1/admin/contests/{id}/publish | 200 | ✅ PASS |
+| POST /v1/contests/{id}/join       | 200  | ✅ PASS |
+| GET /v1/contests/{id}/typing-text | 200  | ✅ PASS |
+| POST /v1/contests/{id}/submit     | 200  | ✅ PASS |
+| GET /v1/leaderboard               | 200  | ✅ PASS |
 
-**Overall: ALL PASS (5/5)**
+**Overall: ALL PASS (27/27 endpoints operational)**
 
 ---
 
 ## How to Login Manually (curl)
 
 ```bash
-# Login
-curl -s -X POST http://127.0.0.1:8001/api/login \
+# Login as Admin
+curl -s -X POST http://127.0.0.1:8001/api/v1/auth/login \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \
-  -d '{"email":"admin@typingcontest.dev","password":"Admin1234!"}'
+  -d '{"email":"admin@example.com","password":"password"}'
 
-# Use the token from the response
+# Login as Test User
+curl -s -X POST http://127.0.0.1:8001/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"email":"rschaefer@example.com","password":"password"}'
+
+# Extract and use the token from the response
 TOKEN="<token from login response>"
 
 # Get current user
-curl http://127.0.0.1:8001/api/me \
+curl http://127.0.0.1:8001/api/v1/auth/me \
   -H "Accept: application/json" \
   -H "Authorization: Bearer $TOKEN"
 
 # Logout
-curl -X POST http://127.0.0.1:8001/api/logout \
+curl -X POST http://127.0.0.1:8001/api/v1/auth/logout \
   -H "Accept: application/json" \
   -H "Authorization: Bearer $TOKEN"
 ```
