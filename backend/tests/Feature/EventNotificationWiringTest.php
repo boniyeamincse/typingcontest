@@ -15,7 +15,7 @@ class EventNotificationWiringTest extends TestCase
     {
         $notificationService = Mockery::mock(NotificationService::class);
         $notificationService->shouldReceive('send')
-            ->atLeast()->once()
+            ->once()
             ->with(
                 ['database', 'websocket'],
                 600,
@@ -35,7 +35,7 @@ class EventNotificationWiringTest extends TestCase
     {
         $notificationService = Mockery::mock(NotificationService::class);
         $notificationService->shouldReceive('send')
-            ->atLeast()->once()
+            ->once()
             ->with(
                 ['database', 'websocket'],
                 77,
@@ -59,7 +59,7 @@ class EventNotificationWiringTest extends TestCase
     {
         $notificationService = Mockery::mock(NotificationService::class);
         $notificationService->shouldReceive('send')
-            ->atLeast()->once()
+            ->once()
             ->with(
                 ['database', 'websocket'],
                 88,
