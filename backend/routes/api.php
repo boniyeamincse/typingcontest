@@ -131,6 +131,7 @@ Route::prefix('v1')->group(function () {
 
             // Admin refund handling
             Route::get('/admin/reports/subscriptions-payments', [AdminPaymentController::class, 'report']);
+            Route::get('/admin/reports/subscriptions-payments/export', [AdminPaymentController::class, 'export']);
             Route::post('/admin/payments/{paymentIntentId}/refund', [AdminPaymentController::class, 'refund'])->middleware('throttle:20,1');
         });
     });

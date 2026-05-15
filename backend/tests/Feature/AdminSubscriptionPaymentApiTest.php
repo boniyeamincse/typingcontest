@@ -202,4 +202,41 @@ class AdminSubscriptionPaymentApiTest extends TestCase
             ->assertJsonPath('data.summary.refunded_amount', 189)
             ->assertJsonPath('data.rows.0.status', 'refunded');
     }
+
+    public function test_admin_can_export_subscription_payment_report_as_csv(): void
+    {
+        $admin = $this->adminUser();
+        $headers = $this->authHeader($admin);
+
+        $this->withHeaders($headers)->postJson('/api/v1/subscription/subscribe', [
+            'plan_code' => 'pro_monthly',
+            'gateway' => 'sslcommerz',
+        ])->assertOk();
+
+        $intent = (string) \App\Models\Payment::query()->latest('id')->value('payment_intent_id');
+
+        $this->withHeaders($headers)->postJson('/api/v1/payment/verify', [
+            'payment_intent_id' => $intent,
+            'status' => 'success',
+            'amount' => 199,
+            'gateway_reference' => 'SSLCZ-REPORT-REF',
+            'external_transaction_id' => 'SSLCZ-REPORT-TXN',
+        ])->assertOk();
+
+        Role::findOrCreate('admin', 'api');
+        $admin->syncRoles(['admin']);
+
+        $response = $this->withHeaders($this->authHeader($admin->fresh()))
+            ->get('/api/v1/admin/reports/subscriptions-payments/export?gateway=sslcommerz&payment_status=paid&limit=10');
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+        $this->assertStringContainsString('attachment; filename=', (string) $response->headers->get('Content-Disposition'));
+
+        $content = $response->getContent();
+        $this->assertNotFalse($content);
+        $this->assertStringContainsString('payment_intent_id,gateway,payment_status', (string) $content);
+        $this->assertStringContainsString($intent, (string) $content);
+        $this->assertStringContainsString('sslcommerz', (string) $content);
+    }
 }

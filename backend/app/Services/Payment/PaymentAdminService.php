@@ -17,17 +17,7 @@ class PaymentAdminService
     public function report(array $filters): array
     {
         $limit = max(1, min((int) ($filters['limit'] ?? 50), 200));
-
-        $baseQuery = Payment::query()
-            ->with([
-                'user:id,username,email,country',
-                'plan:id,code,name,tier,billing_cycle',
-                'coupon:id,code',
-                'subscription:id,user_id,subscription_plan_id,status,starts_at,ends_at',
-                'invoice:id,payment_id,invoice_number,status,total,currency,issued_at,paid_at',
-            ]);
-
-        $this->applyFilters($baseQuery, $filters);
+        $baseQuery = $this->buildReportQuery($filters);
 
         $rows = (clone $baseQuery)
             ->latest('id')
@@ -64,6 +54,72 @@ class PaymentAdminService
                 'net_amount' => round(((float) ($stats?->paid_amount ?? 0)) - ((float) ($stats?->refunded_amount ?? 0)), 2),
             ],
             'rows' => $rows,
+        ];
+    }
+
+    public function exportCsv(array $filters): array
+    {
+        $limit = max(1, min((int) ($filters['limit'] ?? 1000), 5000));
+        $query = $this->buildReportQuery($filters);
+
+        $rows = (clone $query)
+            ->latest('id')
+            ->limit($limit)
+            ->get();
+
+        $stream = fopen('php://temp', 'r+');
+
+        fputcsv($stream, [
+            'payment_intent_id',
+            'gateway',
+            'payment_status',
+            'subscription_status',
+            'plan_code',
+            'coupon_code',
+            'amount',
+            'discount_amount',
+            'final_amount',
+            'currency',
+            'refund_reason',
+            'user_id',
+            'username',
+            'user_email',
+            'country',
+            'invoice_number',
+            'created_at',
+            'paid_at',
+        ]);
+
+        foreach ($rows as $row) {
+            fputcsv($stream, [
+                $row->payment_intent_id,
+                $row->gateway,
+                $row->status,
+                $row->subscription?->status,
+                $row->plan?->code,
+                $row->coupon?->code,
+                (float) $row->amount,
+                (float) $row->discount_amount,
+                (float) $row->final_amount,
+                $row->currency,
+                $row->meta['refund_reason'] ?? null,
+                $row->user?->id,
+                $row->user?->username,
+                $row->user?->email,
+                $row->user?->country,
+                $row->invoice?->invoice_number,
+                optional($row->created_at)->toISOString(),
+                optional($row->paid_at)->toISOString(),
+            ]);
+        }
+
+        rewind($stream);
+        $content = stream_get_contents($stream) ?: '';
+        fclose($stream);
+
+        return [
+            'filename' => 'subscriptions_payments_report_' . now()->format('Ymd_His') . '.csv',
+            'content' => $content,
         ];
     }
 
@@ -119,6 +175,22 @@ class PaymentAdminService
         });
 
         return ['payment' => $updated];
+    }
+
+    private function buildReportQuery(array $filters): Builder
+    {
+        $query = Payment::query()
+            ->with([
+                'user:id,username,email,country',
+                'plan:id,code,name,tier,billing_cycle',
+                'coupon:id,code',
+                'subscription:id,user_id,subscription_plan_id,status,starts_at,ends_at',
+                'invoice:id,payment_id,invoice_number,status,total,currency,issued_at,paid_at',
+            ]);
+
+        $this->applyFilters($query, $filters);
+
+        return $query;
     }
 
     private function applyFilters(Builder $query, array $filters): void
