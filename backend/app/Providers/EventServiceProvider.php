@@ -53,4 +53,9 @@ class EventServiceProvider extends ServiceProvider
             LogAnalyticsSnapshotGeneration::class,
         ],
     ];
+
+    public function shouldDiscoverEvents(): bool
+    {
+        return false;
+    }
 }
