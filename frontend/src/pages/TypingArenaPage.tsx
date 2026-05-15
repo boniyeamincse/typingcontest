@@ -32,10 +32,6 @@ export default function TypingArenaPage() {
   const [countdownLeft, setCountdownLeft] = useState(0)
   const [liveMetrics, setLiveMetrics] = useState<TypingMetrics | null>(null)
 
-  const [finalWpm, setFinalWpm] = useState(0)
-  const [finalAccuracy, setFinalAccuracy] = useState(0)
-  const [finalErrors, setFinalErrors] = useState(0)
-  const [score, setScore] = useState<number | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -147,9 +143,6 @@ export default function TypingArenaPage() {
       setPhase('finished')
 
       const local = computeStats(typedText, contest.textContent)
-      setFinalWpm(local.wpm)
-      setFinalErrors(local.errors)
-      setFinalAccuracy(local.accuracy)
 
       setSubmitting(true)
       try {
@@ -165,17 +158,30 @@ export default function TypingArenaPage() {
           device_fingerprint: getDeviceFingerprint(),
         })
 
-        setFinalWpm(payload.result.wpm)
-        setFinalErrors(payload.result.errors)
-        setFinalAccuracy(payload.result.accuracy)
-        setScore(payload.result.score)
+        // Navigate to dedicated result page, passing scores as optimistic state
+        navigate(`/contests/${contest.id}/result`, {
+          state: {
+            wpm:      payload.result.wpm,
+            accuracy: payload.result.accuracy,
+            errors:   payload.result.errors,
+            score:    payload.result.score,
+          },
+        })
       } catch {
-        // keep local fallback values
+        // Submission failed — navigate with local computed values
+        navigate(`/contests/${contest.id}/result`, {
+          state: {
+            wpm:      local.wpm,
+            accuracy: local.accuracy,
+            errors:   local.errors,
+            score:    null,
+          },
+        })
       } finally {
         setSubmitting(false)
       }
     },
-    [contest, token, computeStats, focusLostFlag, tabSwitchFlag, getDeviceFingerprint],
+    [contest, token, navigate, computeStats, focusLostFlag, tabSwitchFlag, getDeviceFingerprint],
   )
 
   const startRunningState = useCallback(
@@ -427,37 +433,7 @@ export default function TypingArenaPage() {
         {phase === 'finished' ? (
           <div className="arena-results">
             <h2>Round Complete!</h2>
-            <div className="results-grid">
-              <div className="result-card">
-                <span className="result-label">WPM</span>
-                <span className="result-value">{finalWpm}</span>
-              </div>
-              <div className="result-card">
-                <span className="result-label">Accuracy</span>
-                <span className="result-value">{finalAccuracy.toFixed(1)}%</span>
-              </div>
-              <div className="result-card">
-                <span className="result-label">Errors</span>
-                <span className="result-value">{finalErrors}</span>
-              </div>
-              {score !== null ? (
-                <div className="result-card result-card--highlight">
-                  <span className="result-label">Score</span>
-                  <span className="result-value">{score}</span>
-                </div>
-              ) : null}
-            </div>
-
-            {submitting ? <p className="submitting-msg">Saving result...</p> : null}
-
-            <div className="arena-actions">
-              <button className="btn-secondary" onClick={() => navigate(`/contests/${contest.id}`)}>
-                View Leaderboard
-              </button>
-              <button className="btn-secondary" onClick={() => navigate('/contests')}>
-                All Contests
-              </button>
-            </div>
+            {submitting ? <p className="submitting-msg">Saving result…</p> : null}
           </div>
         ) : null}
       </div>

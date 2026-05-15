@@ -33,7 +33,7 @@ export type ContestResult = {
   errors: number
   score: number
   rank: number | null
-  user?: { id: number; name: string }
+  user?: { id: number; name?: string; username?: string; avatar?: string | null; country?: string | null }
 }
 
 export type AdminContestInput = {
@@ -153,6 +153,26 @@ export function getContestLeaderboard(
 
 export function getGlobalLeaderboard(): Promise<ContestResult[]> {
   return request<ContestResult[]>('/leaderboard')
+}
+
+export function getUserResult(
+  id: number,
+  token: string,
+): Promise<ContestResult> {
+  return request<any>(`/contests/${id}/result`, {}, token).then((payload) => {
+    const raw = payload?.data ?? payload
+    return {
+      id:           Number(raw?.id ?? 0),
+      user_id:      Number(raw?.user_id ?? 0),
+      contest_id:   Number(raw?.contest_id ?? id),
+      wpm:          Number(raw?.wpm ?? 0),
+      accuracy:     Number(raw?.accuracy ?? 0),
+      errors:       Number(raw?.errors ?? 0),
+      score:        Number(raw?.score ?? 0),
+      rank:         raw?.rank != null ? Number(raw.rank) : null,
+      user:         raw?.user,
+    }
+  })
 }
 
 export function joinContest(
