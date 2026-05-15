@@ -12,8 +12,6 @@ use Illuminate\Support\Facades\Log;
 class DispatchNotificationJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public string $queue = 'notifications';
     public array $channels;
     public int $userId;
     public string $title;
@@ -32,6 +30,8 @@ class DispatchNotificationJob implements ShouldQueue
         $this->title = $title;
         $this->message = $message;
         $this->payload = $payload;
+
+        $this->onQueue('notifications');
     }
 
     public function handle(): void
