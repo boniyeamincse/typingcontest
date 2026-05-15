@@ -15,11 +15,30 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create roles and permissions first
+        $this->call(RolePermissionSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // Create badges
+        $this->call(BadgeSeeder::class);
+
+        // Create typing texts
+        $this->call(TypingTextSeeder::class);
+
+        // Create test admin user if not exists
+        if (!User::where('email', 'admin@example.com')->exists()) {
+            User::factory()->create([
+                'name' => 'Admin User',
+                'email' => 'admin@example.com',
+                'username' => 'admin',
+                'country' => 'US',
+                'plan_type' => 'pro',
+            ])->assignRole('admin');
+        }
+
+        // Create test users (up to 10 more)
+        $existingCount = User::count();
+        if ($existingCount < 11) {
+            User::factory(11 - $existingCount)->create();
+        }
     }
 }
