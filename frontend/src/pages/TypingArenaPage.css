@@ -39,6 +39,15 @@
 .arena-ready { text-align: center; }
 .arena-ready p { color: var(--muted); margin-bottom: 1.25rem; }
 
+.arena-countdown {
+  font-size: 4rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--focus);
+  margin: 0.5rem 0 1rem;
+  letter-spacing: 0.03em;
+}
+
 .arena-passage--preview {
   font-family: 'Courier New', monospace;
   font-size: 1.05rem;
