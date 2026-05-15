@@ -27,10 +27,10 @@ http://127.0.0.1:8001/api/v1
 
 | Method | Endpoint              | Auth Required | Description              |
 |--------|---------------------- |---------------|--------------------------|
-| POST   | `/v1/auth/register` | No            | Create account + token   |
-| POST   | `/v1/auth/login`    | No            | Login + get token        |
-| GET    | `/v1/auth/me`       | Bearer token  | Fetch current user       |
-| POST   | `/v1/auth/logout`   | Bearer token  | Invalidate current token |
+| POST   | `/auth/register` | No            | Create account + token   |
+| POST   | `/auth/login`    | No            | Login + get token        |
+| GET    | `/auth/me`       | Bearer token  | Fetch current user       |
+| POST   | `/auth/logout`   | Bearer token  | Invalidate current token |
 
 ---
 
@@ -38,18 +38,18 @@ http://127.0.0.1:8001/api/v1
 
 | Test                              | HTTP | Result |
 |-----------------------------------|------|--------|
-| POST /v1/auth/login               | 200  | ✅ PASS |
-| GET /v1/auth/me                   | 200  | ✅ PASS |
-| POST /v1/auth/logout              | 200  | ✅ PASS |
-| GET /v1/contests (public)         | 200  | ✅ PASS |
-| POST /v1/admin/contests (create)  | 201  | ✅ PASS |
-| POST /v1/admin/contests/{id}/publish | 200 | ✅ PASS |
-| POST /v1/contests/{id}/join       | 200  | ✅ PASS |
-| GET /v1/contests/{id}/typing-text | 200  | ✅ PASS |
-| POST /v1/contests/{id}/submit     | 200  | ✅ PASS |
-| GET /v1/leaderboard               | 200  | ✅ PASS |
+| POST /auth/login               | 200  | ✅ PASS |
+| GET /auth/me                   | 200  | ✅ PASS |
+| POST /auth/logout              | 200  | ✅ PASS |
+| GET /contests (public)         | 200  | ✅ PASS |
+| POST /admin/contests (create)  | 201  | ✅ PASS |
+| POST /admin/contests/{id}/publish | 200 | ✅ PASS |
+| POST /contests/{id}/join       | 200  | ✅ PASS |
+| GET /contests/{id}/typing-text | 200  | ✅ PASS |
+| POST /contests/{id}/submit     | 200  | ✅ PASS |
+| GET /leaderboard               | 200  | ✅ PASS |
 
-**Overall: ALL PASS (27/27 endpoints operational)**
+**Overall: Core authentication and contest flows are passing in local smoke tests.**
 
 ---
 
