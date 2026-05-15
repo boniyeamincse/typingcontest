@@ -17,12 +17,15 @@ use App\Http\Controllers\API\Admin\AdminSubscriptionController as DashboardAdmin
 use App\Http\Controllers\API\Admin\AdminSupportController;
 use App\Http\Controllers\API\Admin\AdminSystemController;
 use App\Http\Controllers\API\Admin\AdminUserController;
+use App\Http\Controllers\API\Analytics\AnalyticsController;
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
 use App\Http\Controllers\API\Leaderboard\LeaderboardController;
 use App\Http\Controllers\API\Payment\AdminPaymentController;
 use App\Http\Controllers\API\Payment\PaymentController;
 use App\Http\Controllers\API\Profile\ProfileController;
+use App\Http\Controllers\API\Rewards\RewardsController;
+use App\Http\Controllers\API\Social\SocialController;
 use App\Http\Controllers\API\Subscription\AdminSubscriptionController;
 use App\Http\Controllers\API\Subscription\FeatureAccessController;
 use App\Http\Controllers\API\Subscription\SubscriptionController;
@@ -101,6 +104,26 @@ Route::prefix('v1')->group(function () {
             Route::get('/status/{session_id}', [TypingController::class, 'status']);
             Route::get('/result/{id}', [TypingController::class, 'result']);
             Route::get('/history', [TypingController::class, 'history']);
+        });
+
+        // Social module
+        Route::prefix('social')->group(function () {
+            Route::post('/follow', [SocialController::class, 'follow'])->middleware('throttle:60,1');
+            Route::post('/unfollow', [SocialController::class, 'unfollow'])->middleware('throttle:60,1');
+            Route::post('/friend-request', [SocialController::class, 'sendFriendRequest'])->middleware('throttle:30,1');
+            Route::post('/friend-request/respond', [SocialController::class, 'respondFriendRequest'])->middleware('throttle:30,1');
+            Route::get('/feed', [SocialController::class, 'feed']);
+        });
+
+        // Rewards module
+        Route::prefix('rewards')->group(function () {
+            Route::get('/progress', [RewardsController::class, 'progress']);
+            Route::post('/streak/update', [RewardsController::class, 'updateStreak'])->middleware('throttle:30,1');
+        });
+
+        // Analytics module
+        Route::prefix('analytics')->group(function () {
+            Route::get('/daily-summary', [AnalyticsController::class, 'dailySummary']);
         });
 
         // Subscription module

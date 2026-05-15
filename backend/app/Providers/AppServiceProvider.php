@@ -8,6 +8,8 @@ use App\Repositories\Admin\AdminUserRepositoryInterface;
 use App\Repositories\Admin\EloquentAdminContestRepository;
 use App\Repositories\Admin\EloquentAdminDashboardRepository;
 use App\Repositories\Admin\EloquentAdminUserRepository;
+use App\Repositories\Analytics\AnalyticsRepositoryInterface;
+use App\Repositories\Analytics\EloquentAnalyticsRepository;
 use App\Repositories\Auth\EloquentLoginActivityRepository;
 use App\Repositories\Auth\EloquentSocialAccountRepository;
 use App\Repositories\Auth\EloquentUserRepository;
@@ -28,6 +30,10 @@ use App\Repositories\Profile\EloquentProfileRepository;
 use App\Repositories\Profile\EloquentStatisticRepository;
 use App\Repositories\Profile\ProfileRepositoryInterface;
 use App\Repositories\Profile\StatisticRepositoryInterface;
+use App\Repositories\Rewards\EloquentRewardsRepository;
+use App\Repositories\Rewards\RewardsRepositoryInterface;
+use App\Repositories\Social\EloquentSocialRepository;
+use App\Repositories\Social\SocialRepositoryInterface;
 use App\Repositories\Subscription\EloquentSubscriptionRepository;
 use App\Repositories\Subscription\SubscriptionRepositoryInterface;
 use App\Repositories\Typing\EloquentTypingInputRepository;
@@ -77,6 +83,11 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AdminDashboardRepositoryInterface::class, EloquentAdminDashboardRepository::class);
         $this->app->bind(AdminUserRepositoryInterface::class, EloquentAdminUserRepository::class);
         $this->app->bind(AdminContestRepositoryInterface::class, EloquentAdminContestRepository::class);
+
+        // Social, Rewards, Analytics modules
+        $this->app->bind(SocialRepositoryInterface::class, EloquentSocialRepository::class);
+        $this->app->bind(RewardsRepositoryInterface::class, EloquentRewardsRepository::class);
+        $this->app->bind(AnalyticsRepositoryInterface::class, EloquentAnalyticsRepository::class);
     }
 
     /**
