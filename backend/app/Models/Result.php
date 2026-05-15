@@ -21,15 +21,20 @@ class Result extends Model
         'score',
         'rank',
         'submitted_at',
+        'joined_at',
+        'is_disqualified',
+        'disqualified_reason',
     ];
 
     protected $casts = [
-        'wpm' => 'integer',
-        'accuracy' => 'decimal:2',
-        'errors' => 'integer',
-        'score' => 'decimal:2',
-        'rank' => 'integer',
-        'submitted_at' => 'datetime',
+        'wpm'             => 'integer',
+        'accuracy'        => 'decimal:2',
+        'errors'          => 'integer',
+        'score'           => 'decimal:2',
+        'rank'            => 'integer',
+        'submitted_at'    => 'datetime',
+        'joined_at'       => 'datetime',
+        'is_disqualified' => 'boolean',
     ];
 
     public function user(): BelongsTo
@@ -56,18 +61,13 @@ class Result extends Model
         parent::boot();
 
         static::creating(function ($model) {
-            if (!$model->submitted_at) {
-                $model->submitted_at = now();
-            }
-            if (!$model->score) {
-                $model->score = $model->calculateScore();
-            }
+            // Keep participant creation minimal (join event),
+            // score/submitted_at are set only on result submission.
         });
 
         static::updating(function ($model) {
-            if ($model->isDirty(['wpm', 'accuracy', 'errors'])) {
-                $model->score = $model->calculateScore();
-            }
+            // Score can be computed by DB generated column in some environments,
+            // so we intentionally avoid assigning it here.
         });
     }
 }

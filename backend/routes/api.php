@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\API\Auth\AuthController;
+use App\Http\Controllers\API\Contest\ContestController;
+use App\Http\Controllers\API\Contest\LeaderboardController;
 use App\Http\Controllers\API\Profile\ProfileController;
-use App\Http\Controllers\ContestController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -25,12 +26,12 @@ Route::prefix('v1')->group(function () {
     // ── Public contest reads ──────────────────────────────────────────────────────
     Route::get('/contests', [ContestController::class, 'index']);
     Route::get('/contests/{contest}', [ContestController::class, 'show']);
-    Route::get('/contests/{contest}/leaderboard', [ContestController::class, 'leaderboard']);
-    Route::get('/leaderboard', [ContestController::class, 'globalLeaderboard']);
-    Route::get('/leaderboard/daily', [ContestController::class, 'dailyLeaderboard']);
-    Route::get('/leaderboard/weekly', [ContestController::class, 'weeklyLeaderboard']);
-    Route::get('/leaderboard/monthly', [ContestController::class, 'monthlyLeaderboard']);
-    Route::get('/leaderboard/country', [ContestController::class, 'countryLeaderboard']);
+    Route::get('/contests/{contest}/leaderboard', [LeaderboardController::class, 'contest']);
+    Route::get('/leaderboard', [LeaderboardController::class, 'global']);
+    Route::get('/leaderboard/daily', [LeaderboardController::class, 'daily']);
+    Route::get('/leaderboard/weekly', [LeaderboardController::class, 'weekly']);
+    Route::get('/leaderboard/monthly', [LeaderboardController::class, 'monthly']);
+    Route::get('/leaderboard/country', [LeaderboardController::class, 'country']);
 
     // ── Authenticated ─────────────────────────────────────────────────────────────
     Route::middleware(['auth:api', 'verified.api'])->group(function () {
@@ -63,8 +64,11 @@ Route::prefix('v1')->group(function () {
             Route::put('/admin/contests/{contest}', [ContestController::class, 'update']);
             Route::delete('/admin/contests/{contest}', [ContestController::class, 'destroy']);
             Route::post('/admin/contests/{contest}/publish', [ContestController::class, 'publish']);
+            Route::post('/admin/contests/{contest}/start', [ContestController::class, 'start']);
+            Route::post('/admin/contests/{contest}/end', [ContestController::class, 'end']);
+            Route::post('/admin/contests/{contest}/pause', [ContestController::class, 'pause']);
+            Route::post('/admin/contests/{contest}/resume', [ContestController::class, 'resume']);
             Route::post('/admin/contests/{contest}/cancel', [ContestController::class, 'cancel']);
-            Route::get('/admin/contests', [ContestController::class, 'adminList']);
         });
     });
 

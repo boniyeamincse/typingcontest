@@ -8,6 +8,10 @@ use App\Repositories\Auth\EloquentUserRepository;
 use App\Repositories\Auth\LoginActivityRepositoryInterface;
 use App\Repositories\Auth\SocialAccountRepositoryInterface;
 use App\Repositories\Auth\UserRepositoryInterface;
+use App\Repositories\Contest\ContestRepositoryInterface;
+use App\Repositories\Contest\EloquentContestRepository;
+use App\Repositories\Contest\EloquentParticipantRepository;
+use App\Repositories\Contest\ParticipantRepositoryInterface;
 use App\Repositories\Profile\ActivityRepositoryInterface;
 use App\Repositories\Profile\EloquentActivityRepository;
 use App\Repositories\Profile\EloquentProfileRepository;
@@ -34,6 +38,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ProfileRepositoryInterface::class, EloquentProfileRepository::class);
         $this->app->bind(StatisticRepositoryInterface::class, EloquentStatisticRepository::class);
         $this->app->bind(ActivityRepositoryInterface::class, EloquentActivityRepository::class);
+
+        // Contest module
+        $this->app->bind(ContestRepositoryInterface::class, EloquentContestRepository::class);
+        $this->app->bind(ParticipantRepositoryInterface::class, EloquentParticipantRepository::class);
     }
 
     /**
