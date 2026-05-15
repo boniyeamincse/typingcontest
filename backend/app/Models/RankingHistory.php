@@ -3,28 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Leaderboard extends Model
+class RankingHistory extends Model
 {
-    protected $table = 'leaderboards';
+    protected $table = 'ranking_history';
 
     protected $fillable = [
         'user_id',
-        'contest_id',
         'type',
         'period_key',
         'country_code',
+        'contest_id',
         'rank',
         'previous_rank',
         'rank_movement',
-        'medal',
         'score',
         'wpm',
         'accuracy',
         'errors',
         'completion_time_ms',
-        'bonus_points',
         'meta',
+        'recorded_at',
     ];
 
     protected $casts = [
@@ -36,16 +36,16 @@ class Leaderboard extends Model
         'accuracy' => 'decimal:2',
         'errors' => 'integer',
         'completion_time_ms' => 'integer',
-        'bonus_points' => 'decimal:2',
         'meta' => 'array',
+        'recorded_at' => 'datetime',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function contest()
+    public function contest(): BelongsTo
     {
         return $this->belongsTo(Contest::class);
     }

@@ -5,9 +5,11 @@ namespace App\Providers;
 use App\Events\Auth\UserLoggedIn;
 use App\Events\Contest\ScoreUpdated;
 use App\Events\Profile\ProfileUpdated;
+use App\Events\Typing\TypingFinished;
 use App\Listeners\Auth\LogLoginActivity;
 use App\Listeners\Contest\UpdateLeaderboardOnScoreSubmit;
 use App\Listeners\Profile\LogProfileActivity;
+use App\Listeners\Typing\UpdateLeaderboardOnTypingFinished;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -21,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         ScoreUpdated::class => [
             UpdateLeaderboardOnScoreSubmit::class,
+        ],
+        TypingFinished::class => [
+            UpdateLeaderboardOnTypingFinished::class,
         ],
     ];
 }

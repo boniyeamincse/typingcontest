@@ -29,3 +29,27 @@ Broadcast::channel('typing.leaderboard.{contestId}', function ($user, int $conte
         ->where('user_id', $user->id)
         ->exists();
 });
+
+Broadcast::channel('leaderboard.global', function ($user): bool {
+    return (bool) $user;
+});
+
+Broadcast::channel('leaderboard.daily', function ($user): bool {
+    return (bool) $user;
+});
+
+Broadcast::channel('leaderboard.weekly', function ($user): bool {
+    return (bool) $user;
+});
+
+Broadcast::channel('leaderboard.monthly', function ($user): bool {
+    return (bool) $user;
+});
+
+Broadcast::channel('leaderboard.contest.{contestId}', function ($user, int $contestId): bool {
+    return Contest::where('id', $contestId)->exists();
+});
+
+Broadcast::channel('leaderboard.country.{countryCode}', function ($user, string $countryCode): bool {
+    return strlen($countryCode) === 2;
+});

@@ -12,6 +12,8 @@ use App\Repositories\Contest\ContestRepositoryInterface;
 use App\Repositories\Contest\EloquentContestRepository;
 use App\Repositories\Contest\EloquentParticipantRepository;
 use App\Repositories\Contest\ParticipantRepositoryInterface;
+use App\Repositories\Leaderboard\EloquentLeaderboardRepository;
+use App\Repositories\Leaderboard\LeaderboardRepositoryInterface;
 use App\Repositories\Profile\ActivityRepositoryInterface;
 use App\Repositories\Profile\EloquentActivityRepository;
 use App\Repositories\Profile\EloquentProfileRepository;
@@ -53,6 +55,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(TypingSessionRepositoryInterface::class, EloquentTypingSessionRepository::class);
         $this->app->bind(TypingInputRepositoryInterface::class, EloquentTypingInputRepository::class);
         $this->app->bind(TypingResultRepositoryInterface::class, EloquentTypingResultRepository::class);
+
+        // Leaderboard module
+        $this->app->bind(LeaderboardRepositoryInterface::class, EloquentLeaderboardRepository::class);
     }
 
     /**

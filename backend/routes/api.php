@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\API\Auth\AuthController;
 use App\Http\Controllers\API\Contest\ContestController;
-use App\Http\Controllers\API\Contest\LeaderboardController;
+use App\Http\Controllers\API\Leaderboard\LeaderboardController;
 use App\Http\Controllers\API\Profile\ProfileController;
 use App\Http\Controllers\API\Typing\TypingController;
 use Illuminate\Support\Facades\Route;
@@ -32,7 +32,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/leaderboard/daily', [LeaderboardController::class, 'daily']);
     Route::get('/leaderboard/weekly', [LeaderboardController::class, 'weekly']);
     Route::get('/leaderboard/monthly', [LeaderboardController::class, 'monthly']);
-    Route::get('/leaderboard/country', [LeaderboardController::class, 'country']);
+    Route::get('/leaderboard/country/{countryCode}', [LeaderboardController::class, 'country']);
+    Route::get('/leaderboard/global', [LeaderboardController::class, 'global']);
+    Route::get('/leaderboard/contest/{contest}', [LeaderboardController::class, 'contest']);
 
     // ── Authenticated ─────────────────────────────────────────────────────────────
     Route::middleware(['auth:api', 'verified.api'])->group(function () {
