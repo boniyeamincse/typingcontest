@@ -17,7 +17,7 @@ class ContestController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $query = Contest::whereIn('status', ['published', 'active'])
+        $query = Contest::whereIn('status', [Contest::STATUS_PUBLISHED, Contest::STATUS_ACTIVE])
             ->orderByRaw("FIELD(status,'active','published')")
             ->orderBy('start_time', 'asc');
 
@@ -32,7 +32,7 @@ class ContestController extends Controller
 
     public function show(Contest $contest): JsonResponse
     {
-        if (!in_array($contest->status, ['published', 'active', 'finished'])) {
+        if (! in_array($contest->status, [Contest::STATUS_PUBLISHED, Contest::STATUS_ACTIVE, Contest::STATUS_FINISHED], true)) {
             abort(404);
         }
 
@@ -50,7 +50,7 @@ class ContestController extends Controller
         $user = auth()->user();
 
         // Validate contest is open for joining
-        if (!in_array($contest->status, ['published', 'active'])) {
+        if (! in_array($contest->status, [Contest::STATUS_PUBLISHED, Contest::STATUS_ACTIVE], true)) {
             throw ValidationException::withMessages([
                 'contest' => ['This contest is not open for joining.'],
             ]);
@@ -85,7 +85,7 @@ class ContestController extends Controller
     public function getTypingText(Contest $contest): JsonResponse
     {
         // Only allow access if contest is active
-        if ($contest->status !== 'active') {
+        if ($contest->status !== Contest::STATUS_ACTIVE) {
             abort(403, 'Contest not yet started');
         }
 
@@ -321,7 +321,7 @@ class ContestController extends Controller
         $contest = Contest::create([
             ...$data,
             'created_by' => auth()->id(),
-            'status' => 'draft',
+            'status' => Contest::STATUS_DRAFT,
         ]);
 
         return response()->json([
@@ -351,7 +351,7 @@ class ContestController extends Controller
 
     public function destroy(Contest $contest): JsonResponse
     {
-        if ($contest->status !== 'draft') {
+        if ($contest->status !== Contest::STATUS_DRAFT) {
             throw ValidationException::withMessages([
                 'contest' => ['Only draft contests can be deleted.'],
             ]);
@@ -364,7 +364,7 @@ class ContestController extends Controller
 
     public function publish(Contest $contest): JsonResponse
     {
-        $contest->update(['status' => 'published']);
+        $contest->update(['status' => Contest::STATUS_PUBLISHED]);
 
         return response()->json([
             'message' => 'Contest published successfully',
@@ -374,7 +374,7 @@ class ContestController extends Controller
 
     public function cancel(Contest $contest): JsonResponse
     {
-        $contest->update(['status' => 'cancelled']);
+        $contest->update(['status' => Contest::STATUS_CANCELLED]);
 
         return response()->json([
             'message' => 'Contest cancelled successfully',

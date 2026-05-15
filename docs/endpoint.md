@@ -395,4 +395,4 @@ These are not implemented yet, but they are high-value additions for a productio
 ## Implementation Notes Found During Review
 
 - The documentation above reflects the current route file and controller methods.
-- There is a backend inconsistency around contest cancellation: the controller sets status to `cancelled`, while contest status enums in migrations currently show `draft`, `published`, `active`, `finished` or `completed` depending on migration version. This should be aligned in code and schema before relying on the cancel flow in production.
+- Contest statuses are now aligned across controller code and migrations as: `draft`, `published`, `active`, `finished`, `cancelled`.

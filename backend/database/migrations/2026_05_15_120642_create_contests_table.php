@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->string('title');
                 $table->string('slug')->unique();
                 $table->enum('type', ['daily', 'weekly', 'monthly', 'special'])->default('daily');
-                $table->enum('status', ['draft', 'published', 'active', 'finished'])->default('draft');
+                $table->enum('status', ['draft', 'published', 'active', 'finished', 'cancelled'])->default('draft');
                 $table->unsignedInteger('max_participants')->default(1000);
                 $table->text('prize_description')->nullable();
                 $table->unsignedBigInteger('typing_text_id')->nullable();

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->enum('type', ['daily', 'weekly', 'monthly', 'special'])->default('daily');
-            $table->enum('status', ['draft', 'published', 'active', 'completed'])->default('draft');
+            $table->enum('status', ['draft', 'published', 'active', 'finished', 'cancelled'])->default('draft');
             $table->text('text_content');
             $table->integer('duration_seconds')->default(60);
             $table->timestamp('starts_at')->nullable();
