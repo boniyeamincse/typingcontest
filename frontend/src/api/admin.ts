@@ -303,3 +303,20 @@ export const fetchContentItems = (params?: Record<string, string | number>) =>
   get<ApiResponse<unknown[]>>(
     '/admin/content?' + new URLSearchParams((params ?? {}) as Record<string, string>).toString(),
   )
+
+// -- Remaining module placeholders -------------------------------------------
+
+export const fetchAdvertisementsOverview = () =>
+  get<ApiResponse<unknown>>('/admin/advertisements/overview')
+
+export const fetchSponsorsOverview = () =>
+  get<ApiResponse<unknown>>('/admin/sponsors/overview')
+
+export const fetchApiManagementOverview = () =>
+  get<ApiResponse<unknown>>('/admin/api-management/overview')
+
+export const fetchBackupMaintenanceOverview = () =>
+  get<ApiResponse<unknown>>('/admin/backup-maintenance/overview')
+
+export const fetchSystemMonitoringOverview = () =>
+  get<ApiResponse<unknown>>('/admin/system-monitoring/overview')

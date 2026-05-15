@@ -28,6 +28,11 @@ import AdminLiveMonitorPage from './pages/admin/AdminLiveMonitorPage'
 import AdminSubscriptionsPage from './pages/admin/AdminSubscriptionsPage'
 import AdminBadgesPage from './pages/admin/AdminBadgesPage'
 import AdminContentPage from './pages/admin/AdminContentPage'
+import AdminAdvertisementsPage from './pages/admin/AdminAdvertisementsPage'
+import AdminSponsorsPage from './pages/admin/AdminSponsorsPage'
+import AdminApiManagementPage from './pages/admin/AdminApiManagementPage'
+import AdminBackupMaintenancePage from './pages/admin/AdminBackupMaintenancePage'
+import AdminInfraMonitoringPage from './pages/admin/AdminInfraMonitoringPage'
 import AdminSectionPage from './pages/AdminSectionPage'
 import './App.css'
 
@@ -79,6 +84,11 @@ function App() {
           <Route path="/admin/subscriptions" element={<AdminProtectedRoute><AdminSubscriptionsPage /></AdminProtectedRoute>} />
           <Route path="/admin/badges" element={<AdminProtectedRoute><AdminBadgesPage /></AdminProtectedRoute>} />
           <Route path="/admin/content" element={<AdminProtectedRoute><AdminContentPage /></AdminProtectedRoute>} />
+          <Route path="/admin/advertisements" element={<AdminProtectedRoute><AdminAdvertisementsPage /></AdminProtectedRoute>} />
+          <Route path="/admin/sponsors" element={<AdminProtectedRoute><AdminSponsorsPage /></AdminProtectedRoute>} />
+          <Route path="/admin/api-management" element={<AdminProtectedRoute><AdminApiManagementPage /></AdminProtectedRoute>} />
+          <Route path="/admin/backup-maintenance" element={<AdminProtectedRoute><AdminBackupMaintenancePage /></AdminProtectedRoute>} />
+          <Route path="/admin/system-monitoring" element={<AdminProtectedRoute><AdminInfraMonitoringPage /></AdminProtectedRoute>} />
           <Route path="/admin/section/:slug" element={<AdminProtectedRoute><AdminSectionPage /></AdminProtectedRoute>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />

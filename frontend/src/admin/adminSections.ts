@@ -159,11 +159,13 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   {
     slug: 'advertisement-system',
     title: 'Advertisement System',
+    menuPath: '/admin/advertisements',
     submenus: ['Ad Banners', 'Sponsored Contests', 'Ad Analytics', 'Ad Placements'],
   },
   {
     slug: 'sponsor-management',
     title: 'Sponsor Management',
+    menuPath: '/admin/sponsors',
     submenus: ['Sponsors List', 'Add Sponsor', 'Sponsored Events', 'Brand Campaigns'],
   },
   {
@@ -181,16 +183,19 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   {
     slug: 'api-management',
     title: 'API Management',
+    menuPath: '/admin/api-management',
     submenus: ['API Logs', 'API Rate Limits', 'Token Management', 'Webhook Logs'],
   },
   {
     slug: 'backup-maintenance',
     title: 'Backup & Maintenance',
+    menuPath: '/admin/backup-maintenance',
     submenus: ['Database Backup', 'Restore System', 'Cache Clear', 'Maintenance Mode'],
   },
   {
     slug: 'system-monitoring',
     title: 'System Monitoring',
+    menuPath: '/admin/system-monitoring',
     submenus: ['CPU Usage', 'RAM Usage', 'Queue Jobs', 'Redis Status', 'WebSocket Status'],
   },
 ]

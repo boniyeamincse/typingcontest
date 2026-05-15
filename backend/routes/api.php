@@ -8,6 +8,7 @@ use App\Http\Controllers\API\Admin\AdminContentController;
 use App\Http\Controllers\API\Admin\AdminDashboardController;
 use App\Http\Controllers\API\Admin\AdminLeaderboardController;
 use App\Http\Controllers\API\Admin\AdminLiveMonitoringController;
+use App\Http\Controllers\API\Admin\AdminModulePlaceholderController;
 use App\Http\Controllers\API\Admin\AdminNotificationController;
 use App\Http\Controllers\API\Admin\AdminPaymentController as DashboardAdminPaymentController;
 use App\Http\Controllers\API\Admin\AdminReportController;
@@ -245,6 +246,11 @@ Route::prefix('v1')->group(function () {
                 Route::get('/system/monitoring', [AdminSystemController::class, 'monitoring'])->middleware('admin.module:system');
                 Route::get('/activity-logs', [AdminSystemController::class, 'activityLogs'])->middleware('admin.module:system');
                 Route::get('/api/logs', [AdminSystemController::class, 'apiLogs'])->middleware('admin.module:system');
+                Route::get('/advertisements/overview', [AdminModulePlaceholderController::class, 'advertisementsOverview'])->middleware('admin.module:content');
+                Route::get('/sponsors/overview', [AdminModulePlaceholderController::class, 'sponsorsOverview'])->middleware('admin.module:content');
+                Route::get('/api-management/overview', [AdminModulePlaceholderController::class, 'apiManagementOverview'])->middleware('admin.module:system');
+                Route::get('/backup-maintenance/overview', [AdminModulePlaceholderController::class, 'backupMaintenanceOverview'])->middleware('admin.module:system');
+                Route::get('/system-monitoring/overview', [AdminModulePlaceholderController::class, 'systemMonitoringOverview'])->middleware('admin.module:system');
 
                 Route::get('/roles', [AdminRoleController::class, 'index'])->middleware('admin.module:roles');
                 Route::post('/roles/assign', [AdminRoleController::class, 'assign'])->middleware('admin.module:roles');

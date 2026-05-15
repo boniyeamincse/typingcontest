@@ -707,6 +707,61 @@ class AdminDashboardApiTest extends TestCase
             ->assertForbidden();
     }
 
+    /** @test */
+    public function test_content_manager_can_view_advertisement_and_sponsor_placeholders(): void
+    {
+        $admin = $this->makeUser('content_manager');
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/advertisements/overview')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/sponsors/overview')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+    }
+
+    /** @test */
+    public function test_contest_admin_can_view_system_placeholder_modules(): void
+    {
+        $admin = $this->makeUser('contest_admin');
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/api-management/overview')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/backup-maintenance/overview')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/system-monitoring/overview')
+            ->assertOk()
+            ->assertJsonPath('success', true);
+    }
+
+    /** @test */
+    public function test_support_admin_cannot_access_system_placeholder_modules(): void
+    {
+        $admin = $this->makeUser('support_admin');
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/api-management/overview')
+            ->assertForbidden();
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/backup-maintenance/overview')
+            ->assertForbidden();
+
+        $this->withHeaders($this->authHeader($admin))
+            ->getJson('/api/v1/admin/system-monitoring/overview')
+            ->assertForbidden();
+    }
+
     // ── 15. Role Assignment ───────────────────────────────────────────────────────
 
     /** @test */
