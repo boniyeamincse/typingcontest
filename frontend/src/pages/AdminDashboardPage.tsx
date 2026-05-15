@@ -1,33 +1,12 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../components/AppShell'
-import { ADMIN_SECTIONS } from '../admin/adminSections'
+import { ADMIN_SECTIONS, getAdminSectionPath } from '../admin/adminSections'
 import './AdminDashboardPage.css'
 
-const MAIN_MENU = [
-  { label: 'Dashboard', path: '/admin/dashboard' },
-  { label: 'Users', path: '/admin/section/users' },
-  { label: 'Contests', path: '/admin/section/contests' },
-  { label: 'Live Matches', path: '/admin/section/live-matches' },
-  { label: 'Leaderboards', path: '/admin/section/leaderboards' },
-  { label: 'Subscriptions', path: '/admin/section/subscriptions' },
-  { label: 'Payments', path: '/admin/section/payments' },
-  { label: 'Badges & Rewards', path: '/admin/section/badges-rewards' },
-  { label: 'Reports & Analytics', path: '/admin/section/reports-analytics' },
-  { label: 'Typing Content', path: '/admin/section/typing-content' },
-  { label: 'Notifications', path: '/admin/section/notifications' },
-  { label: 'Support Tickets', path: '/admin/section/support-tickets' },
-  { label: 'Advertisements', path: '/admin/section/advertisements' },
-  { label: 'Sponsors', path: '/admin/section/sponsors' },
-  { label: 'CMS Management', path: '/admin/section/cms-management' },
-  { label: 'Settings', path: '/admin/section/settings' },
-  { label: 'Admins & Roles', path: '/admin/section/admins-roles' },
-  { label: 'Activity Logs', path: '/admin/section/activity-logs' },
-  { label: 'System Monitoring', path: '/admin/section/system-monitoring' },
-  { label: 'API Management', path: '/admin/section/api-management' },
-  { label: 'Security Center', path: '/admin/section/security-center' },
-  { label: 'Backup & Maintenance', path: '/admin/section/backup-maintenance' },
-  { label: 'Logout', path: '/login' },
-]
+const MAIN_MENU = ADMIN_SECTIONS.map((section) => ({
+  label: section.title,
+  path: getAdminSectionPath(section),
+}))
 
 const WIDGETS = [
   'Total Users',

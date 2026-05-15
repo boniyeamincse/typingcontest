@@ -28,6 +28,7 @@ import AdminLiveMonitorPage from './pages/admin/AdminLiveMonitorPage'
 import AdminSubscriptionsPage from './pages/admin/AdminSubscriptionsPage'
 import AdminBadgesPage from './pages/admin/AdminBadgesPage'
 import AdminContentPage from './pages/admin/AdminContentPage'
+import AdminSectionPage from './pages/AdminSectionPage'
 import './App.css'
 
 function AdminProtectedRoute({ children }: { children: ReactNode }) {
@@ -61,6 +62,7 @@ function App() {
 
           {/* ── Admin protected ──────────────────────────────────────── */}
           <Route path="/admin" element={<AdminProtectedRoute><AdminOverviewPage /></AdminProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<AdminProtectedRoute><AdminOverviewPage /></AdminProtectedRoute>} />
           <Route path="/admin/overview" element={<AdminProtectedRoute><AdminOverviewPage /></AdminProtectedRoute>} />
           <Route path="/admin/users" element={<AdminProtectedRoute><AdminUsersPage /></AdminProtectedRoute>} />
           <Route path="/admin/contests" element={<AdminProtectedRoute><AdminContestsPage /></AdminProtectedRoute>} />
@@ -77,6 +79,7 @@ function App() {
           <Route path="/admin/subscriptions" element={<AdminProtectedRoute><AdminSubscriptionsPage /></AdminProtectedRoute>} />
           <Route path="/admin/badges" element={<AdminProtectedRoute><AdminBadgesPage /></AdminProtectedRoute>} />
           <Route path="/admin/content" element={<AdminProtectedRoute><AdminContentPage /></AdminProtectedRoute>} />
+          <Route path="/admin/section/:slug" element={<AdminProtectedRoute><AdminSectionPage /></AdminProtectedRoute>} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

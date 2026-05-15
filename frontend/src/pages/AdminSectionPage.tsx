@@ -1,5 +1,5 @@
 import { Link, Navigate, useParams } from 'react-router-dom'
-import { AppShell } from '../components/AppShell'
+import { AdminShell } from '../admin/AdminShell'
 import { getAdminSection } from '../admin/adminSections'
 import './AdminSectionPage.css'
 
@@ -7,32 +7,17 @@ export default function AdminSectionPage() {
   const { slug } = useParams<{ slug: string }>()
 
   if (!slug) {
-    return <Navigate to="/admin/dashboard" replace />
+    return <Navigate to="/admin/overview" replace />
   }
 
   const section = getAdminSection(slug)
 
   if (!section) {
-    return <Navigate to="/admin/dashboard" replace />
+    return <Navigate to="/admin/overview" replace />
   }
 
   return (
-    <AppShell
-      title={`Admin • ${section.title}`}
-      subtitle="Dedicated module page with submenu and capability overview."
-      actions={
-        <>
-          {slug === 'contests' ? (
-            <Link to="/admin/contests" className="btn-primary">
-              Open Contest Studio
-            </Link>
-          ) : null}
-          <Link to="/admin/dashboard" className="btn-secondary">
-            Back to Admin Dashboard
-          </Link>
-        </>
-      }
-    >
+    <AdminShell>
       <div className="admin-section-layout">
         <section className="admin-section-card surface-card">
           <h2>{section.title}</h2>
@@ -75,8 +60,11 @@ export default function AdminSectionPage() {
           <h3>Module Status</h3>
           <p>This is a dedicated route scaffold for the {section.title} module.</p>
           <p>Next implementation phase can connect backend APIs and module-specific CRUD screens.</p>
+          <Link to="/admin/overview" className="btn btn-secondary" style={{ marginTop: 12 }}>
+            Back to Admin Dashboard
+          </Link>
         </section>
       </div>
-    </AppShell>
+    </AdminShell>
   )
 }

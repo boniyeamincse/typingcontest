@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAdminAuth } from './AdminAuthContext'
+import { ADMIN_SECTIONS, getAdminSectionPath } from './adminSections'
 import './AdminShell.css'
 
 type NavGroup = {
@@ -9,24 +10,35 @@ type NavGroup = {
   roles?: string[] // undefined = accessible by all admin roles
 }
 
-const NAV: NavGroup[] = [
-  { label: 'Overview', icon: '▦', path: '/admin' },
-  { label: 'Users', icon: '👤', path: '/admin/users', roles: ['super_admin', 'user_moderator', 'admin'] },
-  { label: 'Contests', icon: '🏆', path: '/admin/contests', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Live Monitor', icon: '📡', path: '/admin/live', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Leaderboard', icon: '📊', path: '/admin/leaderboard', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Content', icon: '✏️', path: '/admin/content', roles: ['super_admin', 'content_manager', 'admin'] },
-  { label: 'Badges', icon: '🎖️', path: '/admin/badges', roles: ['super_admin', 'content_manager', 'admin'] },
-  { label: 'Subscriptions', icon: '💳', path: '/admin/subscriptions', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Payments', icon: '💰', path: '/admin/payments', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Reports', icon: '📋', path: '/admin/reports', roles: ['super_admin', 'contest_admin', 'support_admin', 'admin'] },
-  { label: 'Security', icon: '🔒', path: '/admin/security', roles: ['super_admin', 'user_moderator', 'admin'] },
-  { label: 'Support', icon: '🎫', path: '/admin/support', roles: ['super_admin', 'support_admin', 'admin'] },
-  { label: 'CMS', icon: '📄', path: '/admin/cms', roles: ['super_admin', 'content_manager', 'admin'] },
-  { label: 'Notifications', icon: '🔔', path: '/admin/notifications', roles: ['super_admin', 'contest_admin', 'support_admin', 'admin'] },
-  { label: 'System', icon: '⚙️', path: '/admin/system', roles: ['super_admin', 'contest_admin', 'admin'] },
-  { label: 'Roles', icon: '🛡️', path: '/admin/roles', roles: ['super_admin'] },
-]
+const SECTION_ICONS: Record<string, string> = {
+  'dashboard-overview': '▦',
+  'user-management': 'U',
+  'contest-management': 'C',
+  'typing-engine-control': 'T',
+  'leaderboard-system': 'L',
+  'subscription-management': 'S',
+  'payment-system': 'P',
+  'badge-reward-system': 'B',
+  'notification-center': 'N',
+  'analytics-reports': 'R',
+  'live-system-monitor': 'M',
+  'security-center': 'X',
+  'support-system': 'H',
+  'cms-management': 'W',
+  'advertisement-system': 'A',
+  'sponsor-management': 'O',
+  'system-settings': 'G',
+  'admin-management': 'D',
+  'api-management': 'I',
+  'backup-maintenance': 'K',
+  'system-monitoring': 'Y',
+}
+
+const NAV: NavGroup[] = ADMIN_SECTIONS.map((section) => ({
+  label: section.title,
+  icon: SECTION_ICONS[section.slug] ?? '•',
+  path: getAdminSectionPath(section),
+}))
 
 type AdminShellProps = {
   children: React.ReactNode
