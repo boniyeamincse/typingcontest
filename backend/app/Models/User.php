@@ -2,25 +2,26 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 use Spatie\Permission\Traits\HasRoles;
 
 #[Fillable([
     'name', 'username', 'email', 'password', 'avatar', 'country',
     'plan_type', 'subscription_status', 'subscription_end_date',
-    'xp_points', 'global_rank', 'total_wpm', 'accuracy_avg', 'is_banned'
+    'xp_points', 'global_rank', 'total_wpm', 'accuracy_avg', 'is_banned',
+    'last_login_at', 'last_login_ip', 'last_login_user_agent'
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -42,18 +43,8 @@ class User extends Authenticatable implements JWTSubject
             'total_wpm' => 'integer',
             'accuracy_avg' => 'decimal:2',
             'is_banned' => 'boolean',
+            'last_login_at' => 'datetime',
         ];
-    }
-
-    // JWT Subject Implementation
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        return [];
     }
 
     // Relationships
@@ -85,6 +76,21 @@ class User extends Authenticatable implements JWTSubject
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
+    }
+
+    public function socialAccounts(): HasMany
+    {
+        return $this->hasMany(SocialAccount::class);
+    }
+
+    public function loginActivities(): HasMany
+    {
+        return $this->hasMany(LoginActivity::class);
+    }
+
+    public function twoFactorAuth(): HasOne
+    {
+        return $this->hasOne(TwoFactorAuth::class);
     }
 }
 

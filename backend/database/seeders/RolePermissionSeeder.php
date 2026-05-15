@@ -20,13 +20,14 @@ class RolePermissionSeeder extends Seeder
             ['name' => 'manage_badges', 'guard_name' => 'api'],
             ['name' => 'view_analytics', 'guard_name' => 'api'],
             ['name' => 'manage_anti_cheat', 'guard_name' => 'api'],
+            ['name' => 'access_pro_features', 'guard_name' => 'api'],
         ], ['name', 'guard_name']);
 
         // Create roles
         Role::upsert([
             ['name' => 'admin', 'guard_name' => 'api'],
-            ['name' => 'moderator', 'guard_name' => 'api'],
-            ['name' => 'user', 'guard_name' => 'api'],
+            ['name' => 'pro_user', 'guard_name' => 'api'],
+            ['name' => 'free_user', 'guard_name' => 'api'],
         ], ['name', 'guard_name']);
 
         // Assign permissions to roles
@@ -39,13 +40,11 @@ class RolePermissionSeeder extends Seeder
             'manage_anti_cheat',
         ]);
 
-        $moderatorRole = Role::where('name', 'moderator')->firstOrFail();
-        $moderatorRole->syncPermissions([
-            'manage_contests',
-            'view_analytics',
-            'manage_anti_cheat',
+        $proRole = Role::where('name', 'pro_user')->firstOrFail();
+        $proRole->syncPermissions([
+            'access_pro_features',
         ]);
 
-        // User role has no permissions by default
+        // free_user intentionally has no elevated permissions
     }
 }

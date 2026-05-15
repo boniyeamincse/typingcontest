@@ -12,19 +12,25 @@ class AuthApiTest extends TestCase
 
     public function test_user_can_register(): void
     {
-        $response = $this->postJson('/api/register', [
+        $response = $this->postJson('/api/v1/auth/register', [
             'name' => 'Boni Tester',
+            'username' => 'boni_tester',
             'email' => 'boni@example.com',
-            'password' => 'password123',
-            'password_confirmation' => 'password123',
+            'password' => 'Qx!9vR2#TypingContest2026',
+            'password_confirmation' => 'Qx!9vR2#TypingContest2026',
         ]);
 
         $response
             ->assertCreated()
             ->assertJsonStructure([
+                'success',
                 'message',
-                'token',
-                'user' => ['id', 'name', 'email'],
+                'data' => [
+                    'token',
+                    'token_type',
+                    'expires_at',
+                    'user' => ['id', 'name', 'email'],
+                ],
             ]);
 
         $this->assertDatabaseHas('users', [
@@ -36,31 +42,37 @@ class AuthApiTest extends TestCase
     {
         $user = User::factory()->create([
             'name' => 'Boni Login',
+            'username' => 'boni_login',
             'email' => 'login@example.com',
-            'password' => 'password123',
+            'password' => 'Qx!9vR2#TypingContest2026',
         ]);
 
-        $login = $this->postJson('/api/login', [
-            'email' => 'login@example.com',
-            'password' => 'password123',
+        $login = $this->postJson('/api/v1/auth/login', [
+            'login' => 'login@example.com',
+            'password' => 'Qx!9vR2#TypingContest2026',
         ]);
 
         $login
             ->assertOk()
             ->assertJsonStructure([
+                'success',
                 'message',
-                'token',
-                'user' => ['id', 'name', 'email'],
+                'data' => [
+                    'token',
+                    'token_type',
+                    'expires_at',
+                    'user' => ['id', 'name', 'email'],
+                ],
             ]);
 
-        $token = $login->json('token');
+        $token = $login->json('data.token');
 
         $this->assertNotEmpty($token);
 
         $this->withHeader('Authorization', 'Bearer '.$token)
-            ->getJson('/api/me')
+            ->getJson('/api/v1/auth/me')
             ->assertOk()
-            ->assertJsonPath('user.id', $user->id);
+            ->assertJsonPath('data.id', $user->id);
     }
 
     public function test_user_can_logout(): void
@@ -69,8 +81,8 @@ class AuthApiTest extends TestCase
         $token = $user->createToken('test-token')->plainTextToken;
 
         $this->withHeader('Authorization', 'Bearer '.$token)
-            ->postJson('/api/logout')
+            ->postJson('/api/v1/auth/logout')
             ->assertOk()
-            ->assertJsonPath('message', 'Logged out successfully');
+            ->assertJsonPath('message', 'Logout successful');
     }
 }

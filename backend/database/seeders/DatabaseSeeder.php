@@ -25,20 +25,34 @@ class DatabaseSeeder extends Seeder
         $this->call(TypingTextSeeder::class);
 
         // Create test admin user if not exists
-        if (!User::where('email', 'admin@example.com')->exists()) {
-            User::factory()->create([
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'],
+            [
                 'name' => 'Admin User',
-                'email' => 'admin@example.com',
                 'username' => 'admin',
                 'country' => 'US',
                 'plan_type' => 'pro',
-            ])->assignRole('admin');
+                'email_verified_at' => now(),
+                'password' => bcrypt('password'),
+            ]
+        );
+
+        if (! $admin->hasRole('admin')) {
+            $admin->assignRole('admin');
         }
 
         // Create test users (up to 10 more)
         $existingCount = User::count();
         if ($existingCount < 11) {
-            User::factory(11 - $existingCount)->create();
+            User::factory(11 - $existingCount)->create()->each(function (User $user): void {
+                $user->assignRole('free_user');
+            });
         }
+
+        User::where('email', '!=', 'admin@example.com')->get()->each(function (User $user): void {
+            if ($user->roles()->doesntExist()) {
+                $user->assignRole('free_user');
+            }
+        });
     }
 }
