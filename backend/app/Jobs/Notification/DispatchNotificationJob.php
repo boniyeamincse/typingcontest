@@ -16,11 +16,11 @@ class DispatchNotificationJob implements ShouldQueue
     public string $queue = 'notifications';
 
     public function __construct(
-        private readonly array $channels,
-        private readonly int $userId,
-        private readonly string $title,
-        private readonly string $message,
-        private readonly array $payload = [],
+        private array $channels,
+        private int $userId,
+        private string $title,
+        private string $message,
+        private array $payload = [],
     ) {
     }
 
