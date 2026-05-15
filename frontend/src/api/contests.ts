@@ -17,6 +17,8 @@ export type Contest = {
   durationSeconds: number
   startsAt: string | null
   endsAt: string | null
+  participantCount: number
+  maxParticipants: number | null
   created_by: number | null
   created_at: string
   updated_at: string
@@ -67,9 +69,11 @@ function normalizeContest(raw: any): Contest {
     type: String(raw?.type ?? 'special'),
     status: String(raw?.status ?? 'draft'),
     textContent,
-    durationSeconds: Number(raw?.duration_seconds ?? 60),
+    durationSeconds: Number(raw?.duration_seconds ?? raw?.duration_minutes ? (raw.duration_minutes * 60) : 60),
     startsAt,
     endsAt,
+    participantCount: Number(raw?.participant_count ?? 0),
+    maxParticipants: raw?.max_participants != null ? Number(raw.max_participants) : null,
     created_by: raw?.created_by ?? null,
     created_at: String(raw?.created_at ?? ''),
     updated_at: String(raw?.updated_at ?? ''),

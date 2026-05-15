@@ -10,6 +10,7 @@ import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import ContestsPage from './pages/ContestsPage'
 import ContestDetailPage from './pages/ContestDetailPage'
+import ContestLobbyPage from './pages/ContestLobbyPage'
 import TypingArenaPage from './pages/TypingArenaPage'
 import ProfilePage from './pages/ProfilePage'
 import LeaderboardPage from './pages/LeaderboardPage'
@@ -63,6 +64,7 @@ function App() {
           <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
           <Route path="/contests" element={<ContestsPage />} />
           <Route path="/contests/:id" element={<ContestDetailPage />} />
+          <Route path="/contests/:id/lobby" element={<ProtectedRoute><ContestLobbyPage /></ProtectedRoute>} />
           <Route path="/contests/:id/play" element={<ProtectedRoute><TypingArenaPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<LeaderboardPage />} />

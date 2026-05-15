@@ -64,6 +64,23 @@ export default function ContestDetailPage() {
     }
   }
 
+  async function handleJoinLobby() {
+    if (!token) { navigate('/login'); return }
+    if (!contest) return
+    setJoining(true)
+    try {
+      await joinContest(contest.id, token)
+    } catch (e) {
+      // "already joined" is fine — just proceed to lobby
+      if (e instanceof Error && !e.message.toLowerCase().includes('already')) {
+        setError(e instanceof Error ? e.message : 'Could not join contest')
+        setJoining(false)
+        return
+      }
+    }
+    navigate(`/contests/${contest.id}/lobby`)
+  }
+
   if (loading) return <p className="loading-msg">Loading…</p>
   if (error) return <p className="error-msg" style={{ padding: '2rem' }}>{error}</p>
   if (!contest) return null
@@ -105,9 +122,12 @@ export default function ContestDetailPage() {
         ) : null}
 
         {contest.status === 'published' ? (
-          <p className="detail-upcoming">
-            This room is upcoming. Join once it switches to active.
-          </p>
+          <div className="detail-upcoming">
+            <p>This contest is upcoming — join the lobby now and get notified the moment it starts.</p>
+            <button className="play-btn" onClick={handleJoinLobby} disabled={joining}>
+              {joining ? 'Joining…' : 'Join Lobby'}
+            </button>
+          </div>
         ) : null}
 
         <section className="leaderboard-section">

@@ -1,0 +1,408 @@
+/* ── Full-screen states ── */
+.lobby-loading,
+.lobby-starting-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary, #0f1117);
+  gap: 1rem;
+  z-index: 100;
+}
+
+.lobby-loading p,
+.lobby-starting-overlay p {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 1rem;
+}
+
+.lobby-spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: lobby-spin 0.8s linear infinite;
+}
+
+@keyframes lobby-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Starting overlay ── */
+.lobby-starting-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lobby-starting-content h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #fff;
+  animation: lobby-pulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes lobby-pulse {
+  from { opacity: 0.7; transform: scale(0.97); }
+  to   { opacity: 1;   transform: scale(1.03); }
+}
+
+.lobby-flash-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid #6366f1;
+  animation: lobby-ring 0.8s ease-out infinite;
+}
+
+@keyframes lobby-ring {
+  0%   { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+
+/* ── Error ── */
+.lobby-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 3rem 1rem;
+  color: #f87171;
+  text-align: center;
+}
+
+/* ── Layout ── */
+.lobby-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .lobby-wrapper {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Card ── */
+.lobby-card {
+  background: var(--surface-card, #1a1d27);
+  border: 1px solid var(--border-color, rgba(255,255,255,0.07));
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* ── Info card ── */
+.lobby-badges {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge--active    { background: rgba(52,211,153,0.15); color: #34d399; }
+.badge--published { background: rgba(99,102,241,0.15); color: #818cf8; }
+.badge--draft     { background: rgba(156,163,175,0.15); color: #9ca3af; }
+.badge--type      { background: rgba(249,115,22,0.12); color: #fb923c; }
+
+.lobby-contest-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0 0 0.5rem;
+  line-height: 1.3;
+}
+
+.lobby-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.85rem;
+}
+
+/* ── Countdown card ── */
+.lobby-countdown-card {
+  text-align: center;
+}
+
+.lobby-countdown-label {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+}
+
+.lobby-countdown-digits {
+  font-size: 2.8rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #818cf8;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+/* ── Participants card ── */
+.lobby-participants-card {
+  text-align: center;
+}
+
+.lobby-participants-label {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.5rem;
+}
+
+.lobby-participants-count {
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #34d399;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.lobby-progress-bar {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.lobby-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #34d399);
+  border-radius: 99px;
+  transition: width 0.6s ease;
+}
+
+/* ── Text preview ── */
+.lobby-preview-label {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.75rem;
+}
+
+.lobby-text-blur {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-primary, #e2e8f0);
+  border-left: 3px solid #6366f1;
+  padding-left: 1rem;
+  margin: 0;
+  filter: blur(5px);
+  user-select: none;
+  pointer-events: none;
+  transition: filter 0.3s;
+}
+
+.lobby-text-hidden .lobby-text-blur-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  background: rgba(99,102,241,0.05);
+  border: 2px dashed rgba(99,102,241,0.2);
+  border-radius: 8px;
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.85rem;
+}
+
+.lobby-join-error {
+  color: #f87171;
+  font-size: 0.85rem;
+  margin: 0;
+  padding: 0.5rem 0;
+}
+
+/* ── Feed card ── */
+.lobby-feed-card {
+  position: relative;
+}
+
+.lobby-feed-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0 0 1rem;
+}
+
+.lobby-feed-empty {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.lobby-feed-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.lobby-feed-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  transition: background 0.2s;
+}
+
+.lobby-feed-item--new {
+  background: rgba(99,102,241,0.12);
+  animation: lobby-slide-in 0.3s ease;
+}
+
+@keyframes lobby-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.lobby-feed-username {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary, #e2e8f0);
+}
+
+.lobby-feed-time {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #8b92a8);
+}
+
+/* ── Avatar ── */
+.lobby-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.lobby-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lobby-avatar--lg {
+  width: 44px;
+  height: 44px;
+  font-size: 1rem;
+}
+
+/* ── Live badge ── */
+.lobby-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary, #8b92a8);
+  margin-top: 0.25rem;
+}
+
+.lobby-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #34d399;
+  animation: lobby-blink 1.2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+@keyframes lobby-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Tips ── */
+.lobby-tips-card h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0 0 0.75rem;
+}
+
+.lobby-tips-list {
+  padding-left: 1.1rem;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* ── You card ── */
+.lobby-you-label {
+  color: var(--text-secondary, #8b92a8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 0.75rem;
+}
+
+.lobby-you-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.lobby-you-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary, #e2e8f0);
+  margin: 0;
+}
+
+.lobby-you-sub {
+  font-size: 0.8rem;
+  color: #34d399;
+  margin: 0.15rem 0 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .lobby-countdown-digits { font-size: 2rem; }
+  .lobby-participants-count { font-size: 1.8rem; }
+  .lobby-card { padding: 1rem; }
+}
