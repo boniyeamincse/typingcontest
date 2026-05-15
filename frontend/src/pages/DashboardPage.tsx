@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { AppShell } from '../components/AppShell'
+import { ProfileSummary } from '../components/ProfileSummary'
 
 export function DashboardPage() {
   const navigate = useNavigate()
@@ -21,40 +22,47 @@ export function DashboardPage() {
   return (
     <AppShell
       title={`Welcome back, ${user?.name ?? 'Player'}`}
-      subtitle="Monitor your account status, then jump into active competitions."
+      subtitle="Track your progress and compete with typists around the world."
     >
-      <section className="dashboard-card">
-        <p className="lead-text">
-          Your authentication flow is connected and ready for full gameplay.
-        </p>
+      <div className="dashboard-content">
+        <ProfileSummary user={user} />
 
-        <div className="stat-grid">
-          <article>
-            <h2>Email</h2>
-            <p>{user?.email}</p>
-          </article>
-          <article>
-            <h2>User ID</h2>
-            <p>{user?.id}</p>
-          </article>
-          <article>
-            <h2>Account</h2>
-            <p>Active</p>
-          </article>
-        </div>
+        <div className="dashboard-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+          <section className="dashboard-card">
+            <h3 style={{ fontFamily: 'var(--font-heading)', marginBottom: '1rem' }}>Next Steps</h3>
+            <p className="lead-text" style={{ marginBottom: '1.5rem' }}>
+              Jump back into the arena and improve your global ranking.
+            </p>
 
-        <div className="dash-actions">
-          <Link to="/contests" className="btn-primary">
-            Browse Contests
-          </Link>
-          <Link to="/admin/contests" className="btn-secondary">
-            Manage Contests
-          </Link>
-          <button className="btn-secondary" onClick={onLogout} disabled={loading}>
-            {loading ? 'Signing out...' : 'Logout'}
-          </button>
+            <div className="dash-actions">
+              <Link to="/contests" className="btn-primary" style={{ padding: '1rem 2rem' }}>
+                Join Active Contest
+              </Link>
+              <Link to="/profile/history" className="btn-secondary">
+                View History
+              </Link>
+            </div>
+          </section>
+
+          <section className="dashboard-card" style={{ background: 'linear-gradient(135deg, #152533 0%, #1c3a50 100%)', color: 'white' }}>
+            <h3 style={{ fontFamily: 'var(--font-heading)', marginBottom: '1rem', color: '#bde2e4' }}>Quick Actions</h3>
+            <div style={{ display: 'grid', gap: '0.5rem' }}>
+              <Link to="/admin/dashboard" className="btn-secondary" style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white' }}>
+                Admin Panel
+              </Link>
+              <button 
+                className="btn-secondary" 
+                onClick={onLogout} 
+                disabled={loading}
+                style={{ background: 'rgba(207, 78, 47, 0.2)', border: '1px solid rgba(207, 78, 47, 0.4)', color: '#ff8a6d' }}
+              >
+                {loading ? 'Signing out...' : 'Sign Out'}
+              </button>
+            </div>
+          </section>
         </div>
-      </section>
+      </div>
     </AppShell>
   )
 }
+

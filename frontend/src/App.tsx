@@ -8,6 +8,7 @@ import ContestsPage from './pages/ContestsPage'
 import ContestDetailPage from './pages/ContestDetailPage'
 import TypingArenaPage from './pages/TypingArenaPage'
 import AdminContestsPage from './pages/AdminContestsPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 import './App.css'
 
 function App() {
@@ -22,6 +23,14 @@ function App() {
           element={
             <ProtectedRoute>
               <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboardPage />
             </ProtectedRoute>
           }
         />
